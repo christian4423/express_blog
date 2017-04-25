@@ -1,0 +1,43 @@
+﻿$screen-lg-min: 1200px;
+$screen-md-max: 1150px;
+$screen-md-min: 992px;
+$screen-sm-max: 991px;
+$screen-sm-min: 768px;
+$screen-xs-max: 767px;
+
+
+
+html {
+    font-size: 16px;
+    font-size: 62.5%;
+
+    body {
+        overflow-x: hidden;
+        overflow-y: visible;
+        margin-bottom: 100px;
+    }
+}
+
+.table-container{
+    width: 100%;
+    min-width: 310px;
+    border: 1px solid black;
+    height: auto;
+    min-height: 300px;
+
+    table{
+        table-layout: fixed;
+        th,td{
+            text-align: center;
+        }
+    }
+}
+
+.header{
+    text-align: center;
+    margin: 5% auto;
+}
+
+.ns-icon{
+    margin: 0 5px;
+}

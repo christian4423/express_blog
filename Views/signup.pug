@@ -1,0 +1,16 @@
+extends layout.pug
+
+block body_content
+    div.row
+        div.col-xs-12.col-sm-4.col-sm-offset-4
+            form
+                div.form-group
+                    label(for="firstname") First name
+                    input.form-control(type="text" placeholder="John" name="firstname" data-users="firstname")
+                div.form-group
+                    label(for="lastname") Last name
+                    input.form-control(type="text" placeholder="Smith" name="lastname" data-users="lastname")   
+                div.form-group
+                    button.btn.btn-primary(type="submit" data-users="signup") Sign Up!                                           
+                                 
+    

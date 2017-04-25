@@ -1,0 +1,12 @@
+doctype html
+html(lang="en")
+  head
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title= ViewBag.title
+    if ViewBag.style
+        link(rel='stylesheet' type='text/css' href='/public/css/bundle.css')
+body
+    include shared/_navbar.pug
+    div.container
+        block body_content
+    script(src='/public/bundle.js')

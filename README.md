@@ -1,1 +1,1 @@
-# express_blog
+# express-webpack-dev-server Boilerplate

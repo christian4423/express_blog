@@ -1,0 +1,24 @@
+extends ../layout.pug
+
+block body_content
+    div.row
+        div.col-xs-12.col-sm-4.col-sm-offset-4
+            form
+                div.form-group
+                    label(for="firstname") First name
+                    input.form-control(type="text" placeholder="John" name="firstname" data-users="firstname")
+                div.form-group
+                    label(for="lastname") Last name
+                    input.form-control(type="text" placeholder="Smith" name="lastname" data-users="lastname") 
+                div.form-group
+                    label(for="email") Email
+                    input.form-control(type="email" placeholder="jsmith01@domain.com" name="email" data-users="email")     
+                div.form-group
+                    label(for="password") Password
+                    input.form-control(type="password" placeholder="Enter Password" name="password" data-users="password")     
+                div.form-group
+                    label(for="passwordconfirm") Re-Type Password
+                    input.form-control(type="password" placeholder="Re-Type Password" name="passwordconfirm" data-users="passwordconfirm")                                                               
+                div.form-group
+                    button.btn.btn-primary(type="submit" data-users="signup") Sign Up!   
+    

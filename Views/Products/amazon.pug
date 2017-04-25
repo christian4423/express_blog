@@ -1,0 +1,12 @@
+div.row
+    div.col-xs-12.col-sm-12
+        div.row
+        each item in features.Items.Item
+            br
+            div.col-xs-12
+                div.row
+                    div.col-xs-12.col-sm-3
+                        img(src=item.LargeImage.URL, style="width: 90%; margin: 0 auto; height: auto;")
+                    div.col-xs-12.col-sm-9
+                        h4= item.ItemAttributes.Title
+                hr
