@@ -14,6 +14,7 @@ const express = require('express'),
     routes = require('./Controllers/index'),
     usersController = require('./Controllers/users'),
     amazonController = require('./Controllers/amazon'),
+    initDBController = require('./Controllers/initDB'),
     blogController = require('./Controllers/blog'),
     helmet = require('helmet'),
     app = express(),
@@ -106,6 +107,7 @@ if (env === "production") {
 
 //Routes
 app.use('/', routes);
+app.use('/initDB', initDBController);
 app.use('/users', usersController);
 app.use('/amazon', amazonController);
 app.use('/blog', blogController);

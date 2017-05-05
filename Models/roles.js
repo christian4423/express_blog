@@ -7,20 +7,19 @@ module.exports = function (sequelize, DataTypes) {
             primaryKey: true
         },
         role: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING({length: 15}),
             field: 'role',
         }
     }, {
             classMethods: {
                 associate: function (models) {
-                    Role.hasOne(models.UserRole, { foreignKey: 'role_id', as: "Role" })
+                    Role.hasOne(models.UserRole, {onDelete:"cascade", hooks: true, onUpdate: "CASCADE", foreignKey: 'role_id', as: "Role" })
                 }
             },
             underscored: true,
-            tableName: "Roles"
+            tableName: "Roles",
+            timestamps: false
         });
     Role.removeAttribute("id");
-    Role.removeAttribute("created_at");
-    Role.removeAttribute("updated_at");
     return Role;
 };

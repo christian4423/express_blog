@@ -12,12 +12,13 @@ module.exports = function (sequelize, DataTypes) {
     }, {
             classMethods: {
                 associate: function (models) {
-                    UserRole.belongsTo(models.User, { foreignKey: 'user_id', as: "User" }),
-                        UserRole.belongsTo(models.Role, { foreignKey: 'role_id', as: "Role" })
+                        UserRole.belongsTo(models.User, { foreignKey: 'user_id', as: "User", onDelete:"SET NULL", onUpdate: "CASCADE", hooks: true }),
+                        UserRole.belongsTo(models.Role, { foreignKey: 'role_id', as: "Role", onDelete:"SET NULL", onUpdate: "CASCADE", hooks: true  })
                 }
             },
             underscored: true,
-            tableName: "UserRole"
+            tableName: "UserRole",
+            timestamps: false
         });
 
     UserRole.removeAttribute("id");
