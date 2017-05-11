@@ -59,6 +59,7 @@
     "amazon-products-api": "0.0.4",
     "bootstrap": "^3.3.6",
     "font-awesome": "^4.7.0",
-    "jquery": "^2.2.0"
+    "jquery": "^2.2.0",
+    "jsonwebtoken": "^7.4.0"
   }
 }

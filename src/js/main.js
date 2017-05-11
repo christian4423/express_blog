@@ -51,7 +51,7 @@ function addUser(firstname, lastname, email, password) {
 function logIn(email, password) {
     const data = { email, password };
     $.ajax({
-        url: "/users/checkLogin",
+        url: "/api/authenticate",
         type: "POST",
         data,
         success: function (res) {

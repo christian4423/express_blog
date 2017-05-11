@@ -16,13 +16,17 @@ const express = require('express'),
     amazonController = require('./Controllers/amazon'),
     initDBController = require('./Controllers/initDB'),
     blogController = require('./Controllers/blog'),
+    authController = require('./Controllers/authenticate'),
+    verifyTokenController = require('./Controllers/verify'),
     helmet = require('helmet'),
     app = express(),
     webpack = require('webpack'),
     webpackDevMiddleware = require('webpack-dev-middleware'),
     webpackHotMiddleware = require('webpack-hot-middleware'),
     config = require('./webpack.dev.config'),
-    compiler = webpack(config);
+    compiler = webpack(config),
+    hiddenConfig = require("./config"),
+    jwt = require('jsonwebtoken');
 
 
 
@@ -38,15 +42,15 @@ app.set('view engine', 'pug');
 
 //express settings
 app.use(favicon(path.join(__dirname, 'favicon.ico')));
-app.use(logger('dev'));
+//app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(session({
-    resave: true,
-    saveUninitialized: true,
-    secret: "Builder33",
-}));
+
+
+app.set('jwt_sk', process.env.JWT_SK);
+
+
 
 //console.log(`In enviorment: ${env}`)
 if (env === 'development') {
@@ -105,11 +109,22 @@ if (env === "production") {
 }
 
 
-//Routes
-app.use('/', routes);
-app.use('/initDB', initDBController);
+
+
+
+app.use("/api", authController);
 app.use('/users', usersController);
+
+
+app.use(verifyTokenController)
+
+
+app.use('/', routes);
+
+//Routes
 app.use('/amazon', amazonController);
+
+app.use('/initDB', initDBController);
 app.use('/blog', blogController);
 
 
