@@ -73,7 +73,7 @@ function logIn(email, password) {
         var d = new Date();
         d.setTime(d.getTime() + (1 * 24 * 60 * 60 * 1000));
         var expires = "expires=" + d.toUTCString();
-        return document.cookie = `token=${token}; ${expires}; path=/"`;
+        return document.cookie = `token=${token}; ${expires}; path=/`;
     }).then(function () {
         return window.location = "/"; // go home
     }).catch(errCallback);
