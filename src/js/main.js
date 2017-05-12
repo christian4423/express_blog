@@ -21,7 +21,7 @@
     });
 
 
-    getProducts();
+    //  getProducts();
 
 
 })();
@@ -50,39 +50,51 @@ function addUser(firstname, lastname, email, password) {
 
 function logIn(email, password) {
     const data = { email, password };
-    $.ajax({
-        url: "/api/authenticate",
-        type: "POST",
-        data,
-        success: function (res) {
-            if (res) {
-                console.log("RESPONCE", res)
-                if (res.error) {
-                    console.error(res.message);
-                } else {
-                    const url = window.location.origin;
-                    window.location = `${url}/`
-                }
+
+    const AUTH = new Promise((resolve, reject) => {
+        $.ajax({
+            url: "/api/authenticate",
+            type: "POST",
+            data,
+            success: function (res) {
+                resolve(res)
+            },
+            error: function (err) {
+                reject(err);
             }
-        },
-        error: function (err) {
-            console.log(err)
-        }
-    })
+        })
+    });
+
+
+    AUTH.then(function (res) {  // set token
+        let token = JSON.stringify(res);
+        return token;
+    }).then(function(token){
+        var d = new Date();
+        d.setTime(d.getTime() + (1 * 24 * 60 * 60 * 1000));
+        var expires = "expires=" + d.toUTCString();
+        return document.cookie = `token=${token}; ${expires}; path=/"`;
+    }).then(function () {
+        return window.location = "/"; // go home
+    }).catch(errCallback);
+}
+
+function errCallback(err) {
+    return console.error(err);
 }
 
 
-function getProducts(){
+function getProducts() {
     $.ajax({
         url: "/amazon/getItemsTest",
         type: "GET",
-        success: function(html){
+        success: function (html) {
             $(".amazon-item-select").html(html);
         },
-        error: function(err){
+        error: function (err) {
             console.log(err)
         },
-        complete: function(){
+        complete: function () {
             console.log("done.")
         }
     })

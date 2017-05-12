@@ -9,24 +9,25 @@ var jwt = require('jsonwebtoken');
 
 
 // route middleware to verify a token
-router.use(function(req, res, next) {
+router.use(function (req, res, next) {
 
   // check header or url parameters or post parameters for token
-  var token = req.body.token || req.query.token || req.headers['x-access-token'];
+  var token = req.body.token || req.query.token || req.headers['x-access-token'] || req.cookies.token;
 
   // decode token
   if (token) {
-
-    // verifies secret and checks exp
-    jwt.verify(token, process.env.JWT_SK, function(err, decoded) {      
-      if (err) {
-        return res.json({ success: false, message: 'Failed to authenticate token.' });    
-      } else {
-        // if everything is good, save to request for use in other routes
-        req.decoded = decoded;    
-        next();
-      }
-    });
+    const TOKEN = JSON.parse(token);
+    const T = TOKEN.token;
+      // verifies secret and checks exp
+      jwt.verify(T, process.env.JWT_SK, function (err, decoded) {
+        if (err) {
+          return res.json({ success: false, message: 'Failed to authenticate token.' });
+        } else {
+          // if everything is good, save to request for use in other routes
+          req.decoded = decoded;
+          next();
+        }
+      });
 
   } else {
 
