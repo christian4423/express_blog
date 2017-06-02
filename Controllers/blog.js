@@ -67,41 +67,105 @@ function postBlog(req, res, next) {
 function goHome(req, res, next) {
     res.redirect("/");
 }
+function updateBlog(req, res, next) {
+    req["ViewBag"]["blogs"] = []
+    const data = req.body;
+    let bod = data.body.replace(/\n\r?/g, '<br />');
+    const subject = data.subject;
+    const body = bod;
+    const tags = data.tags;
+    const user_id = parseInt(req.User.userid);
+    const user_added = data.user_updated;
+    const user_updated = Date.now();
+    const blog_id = data.blog_id;
+    let modelObj = {
+        subject,
+        body,
+        tags,
+        user_added,
+        user_updated,
+    }
+    req["blog_id"] = parseInt(blog_id);
+    req["modelObj"] = modelObj;
+    BlogModel.sync().then(function () {
+        const condition_obj = { where: { blog_id: req.blog_id } };
+        const BlogModelUpdate = BlogModel.update(modelObj, condition_obj);
+        BlogModelUpdate.then(function (responce) {
+            next();
+        });
+        BlogModelUpdate.catch(function (error) {
+            const err = {
+                error: true,
+                message: "Could not create user model",
+                error
+            }
+            res.status(500).send(err);
+        })
+    });
 
-router.use(syncUsers,BlogModelSync)
+
+
+
+}
+function deleteBlog(req, res) {
+    const data = req.body;
+    let blog_id = data.blog_id;
+    BlogModel.sync().then(function () {
+        const condition_obj = { where: { blog_id: req.blog_id } };
+        const BlogModelUpdate = BlogModel.destroy({ where: { blog_id } });
+        BlogModelUpdate.then(function (responce) {
+            res.status(200).send({ error: false, status: 200, message: "blog deleted" });
+        });
+        BlogModelUpdate.catch(function (error) {
+            const err = {
+                error: true,
+                message: "Could delete blog",
+                error
+            }
+            res.status(500).send(err);
+        })
+    });
+}
+
+function getUpdatedBlog(req, res, next) {
+    res.send(req["modelObj"])
+    //res.render("Blog/blogPartial", req.blog);
+}
+function returnNewBlogView(req, res, next) {
+    res.render("Blog/blogPartial", { blog: req.ViewBag.blogs[0] });
+}
+
+router.use(syncUsers, BlogModelSync)
 
 router.post('/postBlog', postBlog, goHome);
+router.post('/edit/', updateBlog, BlogModelSync, GetBlog, findUsers, blogTagsToArr, dateToStamp, returnNewBlogView);
+router.post('/delete/', deleteBlog);
 
-router.use(setEnvVarsBlogGet)
 // router.post('/postBlog', postBlog, goHome);
-router.get('/view/:id', GetBlog, findUsers, blogTagsToArr, dateToStamp, renderGet);
-router.get('/edit/:id', GetBlog, findUsers, blogTagsToArr, renderGetEdit);
-router.get('/myBlogs', GetMyBlogs, findUsers, blogTagsToArr, dateToStamp, renderGet);
+router.get('/view/:id', setEnvVarsBlogGet, GetBlog, findUsers, blogTagsToArr, dateToStamp, renderGet);
+router.get('/edit/:id', setEnvVarsBlogGet, GetBlog, findUsers, blogTagsToArr, renderGetEdit);
+router.get('/myBlogs', setEnvVarsBlogGet, GetMyBlogs, findUsers, blogTagsToArr, dateToStamp, renderGet);
+
+
+
+
 
 
 function setEnvVarsBlogGet(req, res, next) {
-    let env = process.env.ENV;
-    let styleBool = env === "production" ? true : false;
-    const token = req.decoded;
-    const User = token.User;
-    req.ViewBag = {
-        title: "Blog",
-        style: styleBool,
-        User,
-        blogs: []
-    }
+    req.ViewBag["title"] = "Blog";
+    req.ViewBag["blogs"] = [];
     next();
 }
 function BlogModelSync(req, res, next) {
     // let blog_id = req.params.id;
     let BMS = BlogModel.sync();
     BMS.then(() => { next() });
-    BMS.catch((error) => { 
-        res.send(error) 
+    BMS.catch((error) => {
+        res.send(error)
     });
 }
 function GetBlog(req, res, next) {
-    let blog_id = req.params.id;
+    let blog_id = req.params.id || req.blog_id;
     const BMFONE = BlogModel.findOne({ where: { blog_id } });
     BMFONE.then((blog) => {
         if (blog == null) {
@@ -114,7 +178,7 @@ function GetBlog(req, res, next) {
     BMFONE.catch((error) => { res.send(error) });
 }
 function GetMyBlogs(req, res, next) {
-    const BMFONE = BlogModel.findAll({ where: { user_id: parseInt(req.decoded.User.userid) } });
+    const BMFONE = BlogModel.findAll({ where: { user_id: parseInt(req.decoded.User.userid) }, order: '"updatedAt" DESC' });
     BMFONE.then((blogs) => {
         if (blogs == null) {
             res.send({ status: 404, message: "Could not find blog." })
@@ -137,12 +201,19 @@ function syncUsers(req, res, next) {
 }
 function findUsers(req, res, next) {
     const blogs = req.ViewBag.blogs;
+    if(blogs.length <= 0){
+        next();
+    }
     const FoundUsers = [];
     let index = 0;
     for (let blog of blogs) {
         let UserModelFind = UserModel.findOne({ where: { userid: blog.user_id } });
         UserModelFind.then((user) => {
-            req.ViewBag.blogs[index]["profile_pic"] = user.dataValues.profile_pic;
+            let data = user.dataValues;
+            req.ViewBag.blogs[index]["profile_pic"] = data.profile_pic;
+            let fn = data.firstname;
+            let ln = data.lastname;
+            req.ViewBag.blogs[index]["user_added"] = `${fn} ${ln} `;
             index++;
             if (index == (blogs.length)) {
                 next();
@@ -153,6 +224,9 @@ function findUsers(req, res, next) {
 }
 function blogTagsToArr(req, res, next) {
     const blogs = req.ViewBag.blogs;
+    if(blogs.length <= 0){
+        next();
+    }
     let index = 0;
     for (let blog of blogs) {
         let tags = blog.tags;
@@ -164,6 +238,9 @@ function blogTagsToArr(req, res, next) {
 }
 function dateToStamp(req, res, next) {
     const blogs = req.ViewBag.blogs;
+    if(blogs.length <= 0){
+        next();
+    }
     let index = 0;
     for (let blog of blogs) {
         let date = blog.user_updated;
@@ -198,6 +275,10 @@ function timeSince(date) {
     interval = Math.floor(seconds / 60);
     if (interval > 1) {
         return interval + " min";
+    }
+    interval = Math.floor(seconds);
+    if (interval < 15) {
+        return "now"
     }
     return Math.floor(seconds) + " sec";
 }

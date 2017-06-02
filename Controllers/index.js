@@ -7,76 +7,12 @@ var BlogModel = models.blogs;
 var UserRole = models.UserRole;
 var UserModel = models.User;
 
-function setProductsEnviormentVars(req, res, next) {
-    req["ViewBag"] = {
-        style: env === "production" ? true : false,
-        title: "Products"
-    };
-    next();
-    return;
-};
-function productsView(req, res, next) {
-    req['data'] = {
-        ViewBag: req.ViewBag,
-        Model: null
-    };
-    req['renderInfo'] = {
-        view: 'products',
-        status: 200
-    };
-    next();
-    return;
-};
 
 
 
 
-function setHomeEnviormentVars(req, res, next) {
-    req["ViewBag"] = {
-        style: env === "production" ? true : false,
-        title: "Home Page"
-    };
-    next();
-    return;
-};
-function syncUserRoles(req, res, next) {
-    var UserRoleModelSync = UserRole.sync();
-    UserRoleModelSync.then(() => { next() });
-    UserRoleModelSync.catch((error) => { res.send(error) });
-}
-function findUser(req, res, next) {
-    var userid = req.decoded.User.userid
-    models.UserRole.findOne({
-        where: {
-            user_id: userid
-        },
-        include: [
-            {
-                model: models.User,
-                as: "User"
-            },
-            {
-                model: models.Role,
-                as: "Role"
-            }
-        ]
-    })
-        .then(function (users) {
-            if (users == null) {
-                req["Users"] = null;
-                next();
-            } else {
-                req["Users"] = users.User.dataValues;
-                req.ViewBag["User"] = users.User.dataValues;
-                next();
-            }
-        })
-        .catch(function (error) {
-            res.status(500).render("error", { error });
-        });
-}
-
-function view(req, res, next) {
+function setViewBag(req, res, next) {
+    req["ViewBag"]["title"] = "Home Page";
     req['data'] = {
         ViewBag: req.ViewBag,
     };
@@ -86,7 +22,7 @@ function view(req, res, next) {
     };
     next();
     return;
-}
+};
 function syncBlogs(req, res, next) {
     const BlogModelSync = BlogModel.sync();
     BlogModelSync.then(() => { next() });
@@ -108,7 +44,11 @@ function findUsers(req, res, next) {
     for (let blog of blogs) {
         let UserModelFind = UserModel.findOne({ where: { userid: blog.user_id } });
         UserModelFind.then((user) => {
-            req.ViewBag.blogs[index]["profile_pic"] = user.dataValues.profile_pic;
+            let data = user.dataValues;
+            req.ViewBag.blogs[index]["profile_pic"] = data.profile_pic;
+            let fn = data.firstname;
+            let ln = data.lastname;
+            req.ViewBag.blogs[index]["user_added"] = `${fn} ${ln} `;
             index++;
             if (index == (blogs.length)) {
                 next();
@@ -166,28 +106,32 @@ function timeSince(date) {
     var interval = Math.floor(seconds / 31536000);
 
     if (interval > 1) {
-        return interval + " yrs";
+        return interval + " yr";
     }
     interval = Math.floor(seconds / 2592000);
     if (interval > 1) {
-        return interval + " hrs";
+        return interval + " hr";
     }
     interval = Math.floor(seconds / 86400);
     if (interval > 1) {
-        return interval + " days";
+        return interval + " day";
     }
     interval = Math.floor(seconds / 3600);
     if (interval > 1) {
-        return interval + " hrs";
+        return interval + " hr";
     }
     interval = Math.floor(seconds / 60);
     if (interval > 1) {
         return interval + " min";
     }
+    interval = Math.floor(seconds);
+    if (interval === 0) {
+        return "now";
+    }    
     return Math.floor(seconds) + " sec";
 }
 
-function render(req, res, next) {
+function render(req, res) {
     const ri = req.renderInfo;
     const data = req.data;
 
@@ -200,13 +144,11 @@ function render(req, res, next) {
             }
             else {
                 res.status(ri.status).send(html);
-                res.end();
             }
         }
     );
 }
 
-router.get('/', setHomeEnviormentVars, syncUserRoles, findUser, view, syncBlogs, getBlogs, syncUsers, findUsers, blogTagsToArr, dateToStamp, render);
-router.get('/products', setProductsEnviormentVars, findUser, productsView, render);
+router.get('/', setViewBag, syncBlogs, getBlogs, syncUsers, findUsers, blogTagsToArr, dateToStamp, render);
 
 module.exports = router;

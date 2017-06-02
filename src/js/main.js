@@ -31,77 +31,289 @@
     $("[data-blog_delete]").on("click", function () {
         let $this = $(this);
         let id = $this.data().blog_delete;
-        $(`[data-blog=${id}]`).slideToggle();
+        let $confirm = $("#confirm_modal")
+        $confirm.modal("show")
+        let yes_btn = $confirm.find("[data-confirm=true]")
+        let no_btn = $confirm.find("[data-confirm=false]")
+        no_btn.on("click", function () {
+            $confirm.modal("hide")
+        })
+        yes_btn.on("click", function () {
+            $.ajax({
+                url: `/blog/delete/`,
+                type: "POST",
+                data: {
+                    blog_id: id
+                },
+                success: function () {
+                    $confirm.modal("hide")
+                    $(`[data-blog=${id}]`).slideUp(300, function () {
+                        $(`[data-blog=${id}]`).remove();
+                    });
+                },
+                error: function () {
+                    $confirm.modal("hide")
+                    alert("could not delete blog");
+                }
+            })
+        })
     });
 
     $("[data-blog_edit]").off();
     $("[data-blog_edit]").on("click", function () {
         let $this = $(this);
-        console.log("edit func hit");
-        let edit_promise = new Promise((resolve, reject) => {
-            let id = $this.data().blog_edit;
-            let url = `/blog/edit/${id}`
-            $.ajax({
-                url,
-                type: "GET",
-                success: function (html) {
-                    let res_arr = [html, id]
-                    resolve(res_arr);
-                },
-                error: function (error) {
-                    console.log(error);
-                    reject(error);
-                }
-            })
-        });
-
-        edit_promise.then((arr) => {
-            let html = arr[0];
-            let id = arr[1];
-            let $blog = $(`[data-blog=${id}]`);
-            $blog.fadeOut();
-
-            setTimeout(function () {
-                let oldHtml = $blog.html();
-                $blog.html(html);
-                $blog.fadeIn();
-                let tag_action = $blog.find("[data-action=tags_input]");
-                console.log(tag_action)
-                tag_action.off();
-                tag_action.on("click", function () {
-                    let $this = $(this);
-                    console.log("tag action invoked")
-                    let $input = $this.find("input");
-                    $input.hide();
-                    $input.attr("type", "text");
-                    $input.fadeToggle();
-                    $this.off();
-                    let $addBtn = $this.find("i")
-                    $addBtn.toggleClass("fa-plus")
-                    $addBtn.toggleClass("fa-times")
-                    $addBtn.off();
-                    $addBtn.on("click", function () {
-                        let $this = $(this)
-                        $this.toggleClass("fa-plus")
-                        $this.toggleClass("fa-times")
-                        $input.fadeToggle();
-                    })
-                })
-                let cancel_action = $blog.find("[data-blog_edit_cancel]");
-                console.log(tag_action)
-                cancel_action.off();
-                cancel_action.on("click", function () {
-                    $blog.html(oldHtml);
-                })
-            }, 250)
-
-        });
-        edit_promise.catch((error) => {
-            alert("Error, see log");
-            console.error(error);
-        });
+        invokeBlogEdit_btn($this);
     });
 })();
+
+function invokeBlogEdit_btn($e) {
+    let edit_promise = new Promise((resolve, reject) => {
+        let id = $e.data().blog_edit;
+        let url = `/blog/edit/${id}`
+        $.ajax({
+            url,
+            type: "GET",
+            success: function (html) {
+                let res_arr = [html, id]
+                resolve(res_arr);
+            },
+            error: function (error) {
+                reject(error);
+            }
+        })
+    });
+
+    edit_promise.then((arr) => {
+        let html = arr[0];
+        let id = arr[1];
+        let $blog = $(`[data-blog=${id}]`);
+        let oldHtml = $blog.html();
+        $blog.fadeOut(400, function () {
+            $blog.html(html);
+            $blog.fadeIn();
+            handleEditFormActions($blog, id, oldHtml);
+        });
+    });
+    edit_promise.catch((error) => {
+        alert("Error, see log");
+        console.error(error);
+    });
+}
+function handleEditFormActions($blog, id, oldHtml) {
+    let tag_action = $blog.find("[data-action=tags_input]");
+    let cancel_action = $blog.find("[data-blog_edit_cancel]");
+    let tag_delete_action = $blog.find("[data-action=delete_tag]");
+    let submit_action = $blog.find("[data-submit_blog]");
+    invokeTagAction(tag_action);
+    invokeTagDeleteAction(tag_delete_action);
+    invokeTagCancelAction(cancel_action, $blog, oldHtml);
+    invokeBlogEditSubmitAction(submit_action, id, $blog);
+}
+
+function invokeTagAction($e) {
+    $e.off();
+    $e.on("click", function () {
+        let $this = $(this);
+        handleTagAction($this);
+    });
+}
+function handleTagAction($e) {
+    let $input = $e.find("input");
+    $input.hide();
+    $input.attr("type", "text");
+    $input.fadeToggle();
+    $e.off();
+    let $addBtn = $e.find("i")
+    $addBtn.toggleClass("fa-plus")
+    $addBtn.toggleClass("fa-times")
+    $addBtn.off();
+    $addBtn.on("click", function () {
+        let $this = $(this)
+        $this.toggleClass("fa-plus")
+        $this.toggleClass("fa-times")
+        $input.fadeToggle();
+    })
+}
+function invokeTagCancelAction($e, $blog, oldHtml) {
+    $e.off();
+    $e.on("click", function () {
+        handleTagCancelAction($(this), $blog, oldHtml)
+    });
+}
+function handleTagCancelAction($e, $blog, oldHtml) {
+    $blog.fadeOut(400, function () {
+        $blog.html(oldHtml);
+        $blog.fadeIn();
+        let editBtn = $blog.find("[data-blog_edit]");
+        editBtn.off();
+        editBtn.on("click", function () {
+            let $this = $(this);
+            invokeBlogEdit_btn($this);
+        });
+        let delete_blog_btn = $blog.find("[data-blog_delete]");
+        delete_blog_btn.off();
+        delete_blog_btn.on("click", function () {
+            let $this = $(this);
+            let id = $this.data().blog_delete;
+            let $confirm = $("#confirm_modal")
+            $confirm.modal("show")
+            let yes_btn = $confirm.find("[data-confirm=true]")
+            let no_btn = $confirm.find("[data-confirm=false]")
+            no_btn.on("click", function () {
+                $confirm.modal("hide")
+            })
+            yes_btn.on("click", function () {
+                $.ajax({
+                    url: `/blog/delete/`,
+                    type: "POST",
+                    data: {
+                        blog_id: id
+                    },
+                    success: function () {
+                        $confirm.modal("hide")
+                        $(`[data-blog=${id}]`).slideUp(300, function () {
+                            $(`[data-blog=${id}]`).remove();
+                        });
+                    },
+                    error: function () {
+                        $confirm.modal("hide")
+                        alert("could not delete blog");
+                    }
+                })
+            })
+        });
+    })
+
+}
+
+function invokeTagDeleteAction($e, $blog, oldHtml) {
+    $e.off();
+    $e.on("click", function () {
+        handleTagDeleteAction($(this))
+    });
+}
+function handleTagDeleteAction($e) {
+    $e.parent().remove();
+}
+function invokeBlogEditSubmitAction($e, id, $blog) {
+    $e.off();
+    $e.on("click", function () {
+        handleBlogEditSubmitAction($(this), $blog)
+    });
+}
+function handleBlogEditSubmitAction($e, $blog) {
+    let original_tags = $blog.find(".orig_tag");
+    let new_tags = $blog.find("input.tag_input_edit");
+    let str = ""
+    if (new_tags.val() !== "") {
+        str = new_tags.val().trim() + " ";
+    }
+    if (original_tags.length > 0) {
+        $.each(original_tags, function (i, tag) {
+            let $tag = $(tag);
+            str += `${$tag.text().trim()} `;
+        });
+    }
+    let success_ele = $blog.find("[data-success=blog]");
+    var error_ele = $blog.find("[data-error=blog]");
+    if (str === "") {
+        success_ele.hide();
+        let bold_text = error_ele.find("strong");
+        let message_text = error_ele.find("span");
+        bold_text.text("Tag Error! ");
+        message_text.text("At least one tag is needed.");
+        error_ele.fadeIn(200);
+        return false;
+    } else {
+        submitBlogPromise($blog, str, success_ele, error_ele);
+    }
+}
+
+
+function submitBlogPromise($blog, tags, $success_ele, $error_ele) {
+    const url = "/blog/edit/";
+    const type = "POST";
+    let subject = $blog.find("input[name=subject]");
+    let body = $blog.find("textarea[name=body]");
+    let user_updated = $blog.find("input[name=user_updated]");
+    let blog_id = $blog.find("input[name=blog_id]");
+
+    const data = {
+        subject: parseString(subject.val()),
+        body: parseString(body.val()),
+        tags: parseString(tags),
+        user_updated: parseString(user_updated.val()),
+        blog_id: parseInt(blog_id.val())
+    }
+
+    let blogEditPostPromise = new Promise((resolve, reject) => {
+        $.ajax({
+            url,
+            type,
+            data,
+            success: function (html) {
+                resolve(html)
+            },
+            error: function (error) {
+                reject(error)
+            }
+        })
+    });
+    blogEditPostPromise.then(function (html) {
+        $blog.fadeOut(400, function () {
+            $blog.html(html);
+            $blog.fadeIn(function () {
+                let editBtn = $blog.find("[data-blog_edit]");
+                editBtn.off();
+                editBtn.on("click", function () {
+                    let $this = $(this);
+                    invokeBlogEdit_btn($this);
+                });
+                let delete_blog_btn = $blog.find("[data-blog_delete]");
+                delete_blog_btn.off();
+                delete_blog_btn.on("click", function () {
+                    let $this = $(this);
+                    let id = $this.data().blog_delete;
+                    let $confirm = $("#confirm_modal")
+                    $confirm.modal("show")
+                    let yes_btn = $confirm.find("[data-confirm=true]")
+                    let no_btn = $confirm.find("[data-confirm=false]")
+                    no_btn.on("click", function () {
+                        $confirm.modal("hide")
+                    })
+                    yes_btn.on("click", function () {
+                        $.ajax({
+                            url: `/blog/delete/`,
+                            type: "POST",
+                            data: {
+                                blog_id: id
+                            },
+                            success: function () {
+                                $confirm.modal("hide")
+                                $(`[data-blog=${id}]`).slideUp(300, function () {
+                                    $(`[data-blog=${id}]`).remove();
+                                });
+                            },
+                            error: function () {
+                                $confirm.modal("hide")
+                                alert("could not delete blog");
+                            }
+                        })
+                    })
+                });
+            })
+        })
+    });
+    blogEditPostPromise.catch(function (error) {
+        alert("Error, see log.")
+        return console.error(error.message)
+    });
+
+}
+
+function parseString(str) {
+    return str.trim().replace(/\'/g, '&apos;');
+}
 
 function addUser(firstname, lastname, email, password) {
     const data = { firstname, lastname, email, password };

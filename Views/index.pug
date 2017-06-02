@@ -32,8 +32,10 @@ block body_content
                 div.col-xs-2.col-sm-1
                     img.profile_picture.profile_picture--blog(src=blog.profile_pic alt=`${blog.user_added}'s' Profile Picture` title=`${blog.user_added}'s' Profile Picture`)
                 div.col-xs-10.col-sm-6                
-                    h5.__title(title="Post Owner")= blog.user_added
-                        a(href=`/blog/view/${blog.blog_id}` target="_blank")
+                    h5.__title(title="Post Owner")
+                        a(href=`/profile/view/${blog.user_id}` target="_parent")
+                            span(title=`View ${blog.user_added}'s profile`)= blog.user_added
+                        a.time(href=`/blog/view/${blog.blog_id}` target="_blank")
                             span(title="See post in new tab")= `${blog.time_ago}`
                     h3(title="Subject")= blog.subject
                     p.__body(title="Body")!= blog.body

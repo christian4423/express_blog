@@ -16,6 +16,8 @@ const express = require('express'),
     amazonController = require('./Controllers/amazon'),
     initDBController = require('./Controllers/initDB'),
     accountController = require('./Controllers/account'),
+    profileController = require('./Controllers/profile'),
+    setUserController = require('./Controllers/setUserMiddleware'),
     blogController = require('./Controllers/blog'),
     authController = require('./Controllers/authenticate'),
     verifyTokenController = require('./Controllers/verify'),
@@ -124,15 +126,13 @@ app.use("/api", authController);
 app.use('/users', usersController);
 
 
-app.use(verifyTokenController)
-
+app.use(verifyTokenController);
+app.use(setUserController);
 
 app.use('/', routes);
+app.use('/profile', profileController);
 app.use('/account', accountController);
-
-// Routes
 app.use('/amazon', amazonController);
-
 app.use('/blog', blogController);
 
 

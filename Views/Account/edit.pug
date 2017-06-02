@@ -19,7 +19,7 @@ block body_content
             div.col-xs-2.col-sm-2.col-md-1
                 img(src=`${ViewBag.User.profile_pic}` class="profile_picture" alt=`${ViewBag.User.firstname} ${ViewBag.User.lastname}'s profile picture`)
             div.col-xs-5.col-sm-4.col-md-3
-                input.form-control(type="file" value=`${ViewBag.User.profile_pic}` required="false" name="profile_pic" placeholder="/photos/default.jpg" style="margin-top:15px")
+                input.form-control(type="file" value=`${ViewBag.User.profile_pic}` name="profile_pic" placeholder="/photos/default.jpg" style="margin-top:15px")
         div.row.form-group
             div.col-xs-12.col-sm-12.col-md-12
                 input.btn.btn-success(type="submit" value=`Save!`)

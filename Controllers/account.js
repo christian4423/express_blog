@@ -8,20 +8,51 @@ var multer = require('multer')
 
 
 
-
+const imageFilter = (req, file, cb) => {
+    let regex = new RegExp(/\.(jpg|jpeg|png|gif)$/, "i");
+    if (!file.originalname.match(regex)) {
+        return cb(new Error('Only image files are allowed!'), false);
+    }
+    cb(null, true);
+};
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-
-        var pathName = `photos/users/${req.user.dataValues.userid}`;
+        pathName = `photos/users/${req.user.dataValues.userid}`;
         var p = mkdirSync(pathName)
-        cb(null, pathName)
+        if (p === false) {
+            cb(true, null)
+        } else {
+            cb(null, pathName)
+        }
+
     },
     filename: function (req, file, cb) {
-        cb(null, `${Date.now()}.jpg`);
+        let regex = new RegExp(/\.(jpg|jpeg|png|gif|bmp)$/, "i");
+        let filename = file.originalname;
+        let ext_arr = filename.match(regex);
+        let ext_str = ext_arr[0];
+        cb(null, `${Date.now()}${ext_str}`);
     }
 })
 
 const mkdirSync = (dirPath) => {
+    try {
+        fs.mkdirSync(dirPath)
+    } catch (err) {
+        if (err.code !== 'EEXIST') {
+            fs.mkdirSync("photos/users")
+            try {
+                fs.mkdirSync(dirPath)
+            }
+            catch (err) {
+                if (err.code !== 'EEXIST') {
+                    return false;
+                }
+            }
+        }
+    }
+}
+const checkUserdirSync = (dirPath) => {
     try {
         fs.mkdirSync(dirPath)
     } catch (err) {
@@ -30,22 +61,16 @@ const mkdirSync = (dirPath) => {
 }
 
 // todo: implement
-const imageFilter = (req, file, cb) => {
-    // accept image only
-    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-        return cb(new Error('Only image files are allowed!'), false);
-    }
-    cb(null, true);
-};
 
-const upload = multer({ storage: storage }).single("profile_pic")
+
+const upload = multer({ fileFilter: imageFilter, storage: storage }).single("profile_pic")
 
 //Middlewares
 router.use(syncUserRoles, syncUsers)
 
 // GETS
 router.get('/', setEnvVarsAccountGet, syncUserRoles, syncUsers, makeFindUserObj, findUser, validateEdit, render);
-router.get('/edit/:id', setEnvVarsEditGet, makeFindUserObj, findUser, validateEdit, renderEditGet);
+router.get('/edit/:id', setEnvVarsEditGet, makeFindUserObj_Other, findUser_other, validateEdit, renderEditGet);
 // POSTS
 router.post('/edit', setEnvVarsEditPost, syncUserRoles, syncUsers, validateEditPost, handleProfilePictureUpload, writeEditToDB, redirect);
 
@@ -58,31 +83,13 @@ router.post('/edit', setEnvVarsEditPost, syncUserRoles, syncUsers, validateEditP
 
 // get funcs
 function setEnvVarsAccountGet(req, res, next) {
-    let env = process.env.ENV;
-    let styleBool = env === "production" ? true : false;
-    let isEdit;
-    const token = req.decoded;
-    const User = token.User;
-    req.ViewBag = {
-        title: "Account",
-        style: styleBool,
-        User,
-        isEdit
-    }
+    req.ViewBag["title"] = "Account";
+    req.ViewBag["isEdit"] = false;
     next();
 }
 function setEnvVarsEditGet(req, res, next) {
-    let env = process.env.ENV;
-    let styleBool = env === "production" ? true : false;
-    let isEdit;
-    const token = req.decoded;
-    const User = token.User;
-    req.ViewBag = {
-        title: "Edit",
-        style: styleBool,
-        User,
-        isEdit
-    }
+    req.ViewBag["title"] = "Edit Blog";
+    req.ViewBag["isEdit"] = false;
     next();
 }
 
@@ -100,6 +107,26 @@ function syncUsers(req, res, next) {
 function makeFindUserObj(req, res, next) {
     const User = req.ViewBag.User;
     const UserRoleWhere = { where: { user_id: User.userid } }
+    const UserRoleInclude = [
+        {
+            model: models.User,
+            as: "User"
+        },
+        {
+            model: models.Role,
+            as: "Role"
+        }
+    ]
+    const UserRoleFindOneObj = {
+        UserRoleWhere,
+        include: UserRoleInclude
+    }
+    req["user_role_find_obj"] = UserRoleFindOneObj;
+    next();
+}
+function makeFindUserObj_Other(req, res, next) {
+    const User = req.params.id;
+    const UserRoleWhere = { where: { user_id: User } }
     const UserRoleInclude = [
         {
             model: models.User,
@@ -143,6 +170,31 @@ function findUser(req, res, next) {
         res.status(500).send(err);
     })
 }
+function findUser_other(req, res, next) {
+    const UserRoleFindOneObj = req["user_role_find_obj"];
+    const UserRoleFindOne = models.UserRole.findOne({ where: { user_id: req.params.id }, include: UserRoleFindOneObj.include });
+    UserRoleFindOne.then((user) => {
+        if (user == null) {
+            const err = {
+                error: true,
+                message: "User Profile Not Found.",
+                err
+            }
+            res.status(500).send(err);
+        } else {
+            req["User"] = user;
+            next();
+        }
+    })
+    UserRoleFindOne.catch((error) => {
+        const err = {
+            error: true,
+            message: "Could not create user model",
+            error
+        }
+        res.status(500).send(err);
+    })
+}
 // set isEdit in ViewBag
 function validateEdit(req, res, next) {
     const user = req["User"]
@@ -150,7 +202,7 @@ function validateEdit(req, res, next) {
     let isEdit = false;
     token.Role === "Admin" ? isEdit = true : isEdit = isEdit;
     user.dataValues.user_id === token.User.userid ? isEdit = true : isEdit = isEdit;
-    
+
     req.ViewBag["User"] = user.User.dataValues;
     req.ViewBag["isEdit"] = isEdit;
     next();
@@ -180,17 +232,8 @@ function renderEditGet(req, res) {
 // post funcs
 // sets enviorment vars for layout
 function setEnvVarsEditPost(req, res, next) {
-    let env = process.env.ENV;
-    let styleBool = env === "production" ? true : false;
-    let isEdit;
-    const token = req.decoded;
-    const User = token.User;
-    req.ViewBag = {
-        title: "Edit",
-        style: styleBool,
-        User,
-        isEdit
-    }
+    req.ViewBag["title"] = "Edit Blog";
+    req.ViewBag["isEdit"] = false;
     next();
 }
 // checking if user is admin or user is the same as the profile being edited.
@@ -234,7 +277,8 @@ function validateEditPost(req, res, next) {
 // saves file to system
 function handleProfilePictureUpload(req, res, next) {
     upload(req, res, function (err) {
-        if (err) throw err;
+        if (err) req["file"] = false;
+        if (!req["file"]) req["file"] = false;
         next();
     })
 }
@@ -243,8 +287,14 @@ function writeEditToDB(req, res, next) {
     const UserModelSync = UserModel.sync();
     UserModelSync.then(() => {
         const fd = req.body; // form data
-        const profile_pic = `/${req.file.path}`;
-        const update_obj = { firstname: fd.firstname, lastname: fd.lastname, email: fd.email, profile_pic };
+        let profile_pic = "";
+        let update_obj = {};
+        if (req["file"] === false || req["file"] === null || req["file"] === undefined) {
+            update_obj = { firstname: fd.firstname, lastname: fd.lastname, email: fd.email };
+        } else {
+            profile_pic = `/${req.file.path}`;
+            update_obj = { firstname: fd.firstname, lastname: fd.lastname, email: fd.email, profile_pic };
+        }
         const condition_obj = { where: { userid: fd.userid } };
         const UserModelUpdate = UserModel.update(update_obj, condition_obj);
         UserModelUpdate.then((responce) => {

@@ -3,6 +3,7 @@ var router = express.Router();
 var models = require('../Models');
 var UserModel = models.User;
 var UserRoleModel = models.UserRole;
+
 var pass = require('password-hash-and-salt');
 var jwt = require('jsonwebtoken');
 
@@ -55,6 +56,7 @@ router.get('/logout', function (req, res, next) {
     res.clearCookie("token");
     res.redirect("/");
 });
+
 
 
 //actions

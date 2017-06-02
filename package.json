@@ -1,9 +1,9 @@
 {
-  "name": "webpack-express-boilerplate",
-  "version": "0.0.0",
+  "name": "express_blog",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "node ./bin/www"
   },
   "devDependencies": {
     "babel-core": "^6.4.5",
@@ -53,16 +53,16 @@
     "webpack": "^1.12.13",
     "webpack-dev-middleware": "^1.10.0",
     "webpack-dev-server": "1.14.0",
-    "webpack-hot-middleware": "^2.17.0"
+    "webpack-hot-middleware": "^2.17.0",
+    "jsonwebtoken": "^7.4.0",
+    "multer": "^1.3.0",
+    "socket.io": "^2.0.2",
+    "uuid": "^3.0.1"
   },
   "dependencies": {
     "amazon-products-api": "0.0.4",
     "bootstrap": "^3.3.6",
     "font-awesome": "^4.7.0",
-    "jquery": "^2.2.0",
-    "jsonwebtoken": "^7.4.0",
-    "multer": "^1.3.0",
-    "socket.io": "^2.0.2",
-    "uuid": "^3.0.1"
+    "jquery": "^2.2.0"
   }
 }

@@ -4,6 +4,7 @@ var models = require('../Models');
 var RolesModel = models.Role;
 var UserModel = models.User;
 var UserRoleModel = models.UserRole;
+var BlogModel = models.blogs;
 var pass = require('password-hash-and-salt');
 
 function initDB(req, res, next) {
@@ -40,6 +41,20 @@ function delete_users(req, res, next) {
         next(responce.message);
     });
 }
+function delete_blogs(req, res, next) {
+    BlogModel.sync().then(function () {
+        BlogModel.drop({
+            benchmark: true
+        }).then(function () {
+            console.log("...Blogs Deleted");
+            next();
+        }).catch(function (responce) {
+            next(responce.message);
+        });
+    }).catch(function (responce) {
+        next(responce.message);
+    });
+}
 function delete_user_roles(req, res, next) {
     UserRoleModel.sync().then(function () {
         UserRoleModel.drop({
@@ -66,7 +81,7 @@ function add_roles(req, res, next) {
             { roleid: 3, role: "Guest" },
             { roleid: 4, role: "Unauthorized" }
         ], {
-                benchmark: true,
+                benchmark: false,
             })
             .then(function (responce) {
                 console.log("...In Roles Table");
@@ -99,7 +114,7 @@ function create_super_user(req, res, next) {
     console.log("......Creating Super User");
     UserModel.sync().then(function () {
         UserModel.create({ firstname: "Super", lastname: "User", email: "su@diggitys.com", hash: hash }, {
-            benchmark: true,
+            benchmark: false,
         })
             .then(function (responce) {
                 console.log("......Creating Super Created");
@@ -117,7 +132,7 @@ function link_su_to_role(req, res, next) {
     console.log("......Setting Super User as Admin");
     UserRoleModel.sync().then(function () {
         UserRoleModel.create({ user_id: 1, role_id: 1 }, {
-            benchmark: true,
+            benchmark: false,
         })
             .then(function (responce) {
                 console.log("......Super User is now admin");
@@ -143,11 +158,10 @@ function display(req, res, next) {
 }
 
 function end(req, res) {
-    res.end("database initializtion complete");
+    res.clearCookie("token");
+    res.redirect("/");
 }
 
 
-router.get('/', initDB, delete_roles, delete_users, delete_user_roles, add_roles, create_hash, create_super_user, link_su_to_role,display, end);
-
-
+router.get('/', initDB, delete_roles, delete_users, delete_user_roles, delete_blogs, add_roles, create_hash, create_super_user, link_su_to_role, display, end);
 module.exports = router;

@@ -1,25 +1,40 @@
 
-div.row        
+div.row
+    div.col-xs-10.col-sm-8.col-md-6(data-error="blog" style="display:none;")
+        div.alert.alert-danger
+            strong="Oh Snap!"
+            span="Something went wrong."  
+    div.col-xs-10.col-sm-8.col-md-6(data-success="blog" style="display:none;")
+        div.alert.alert-success
+            strong="Blog Updated! "
+            span="Redirecting Shortly..."                 
+div.row
     div.col-xs-10.col-sm-8.col-md-6#blog_form
         br
         form(action="/blog/postBlog" method="post")      
-            input(type="hidden" value=`${ViewBag.User.userid}` name="user_id")          
-            div.form-group                                
+            input(type="hidden" value=`${ViewBag.User.userid}` name="user_id")
+            input(type="hidden" value=`${ViewBag.blogs[0].blog_id}` name="blog_id")         
+            input(type="hidden" value=`${ViewBag.User.firstname} ${ViewBag.User.lastname}` name="user_updated")          
+            div.form-group
+                label(for="subject")= "Subject"                                
                 input(name="subject" placeholder="Subject" type="text" value=`${ViewBag.blogs[0].subject}`).form-control
-            div.form-group                
+            div.form-group
+                label(for="body")= "Body"
                 textarea(name="body" placeholder="Body").form-control=`${ViewBag.blogs[0].body}`
             div.form-group
+                label(for="tags")= "Tags"
+                br
                 div.btn-group                
                     each tag in ViewBag.blogs[0].tags
                         div.btn.btn-warning
-                            span=`${tag} `
-                            i.fa.fa-times
+                            span.orig_tag=`${tag} `
+                            i.fa.fa-times.fa_icon_btn(data-action="delete_tag")
                     div.btn.btn-info(data-action="tags_input")
-                        input(type="hidden" value="" placeholder="seperate with spaces" class="form-control tag_input_edit")
+                        input(type="hidden" name="tags" placeholder="seperate with spaces" class="form-control tag_input_edit")
                         i.fa.fa-plus
             div.form-group.text-right
                 div.btn-group 
-                    div.btn.btn-danger(data-blog_edit_cancel="true")
+                    div.btn.btn-danger(data-blog_edit_cancel="true" title="Cancel blog edit")
                         i.fa.fa-times                                   
-                    div(data-submit_blog=(ViewBag.blogs[0].blog_id) class="btn btn-success" title="Submit Form")
+                    div(data-submit_blog=(ViewBag.blogs[0].blog_id) class="btn btn-success" title="Submit blog edit")
                         i.fa.fa-paper-plane-o

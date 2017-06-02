@@ -83,6 +83,9 @@ nav{
 .blog_post{
     font-family: 'Arimo';
     a{
+        font-family: 'Arimo' !important;
+    }
+    a.time{
         color: darkgray;
         margin-left: 5px;
         font-size: 1.25rem;
@@ -125,4 +128,10 @@ nav{
     .editBtns{
         a{color:white;}
     }
+    .fa_icon_btn{
+        &:hover{
+            color: red;
+        }
+    }
+
 }
