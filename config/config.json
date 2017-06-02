@@ -1,5 +1,12 @@
 {
-  "test": {
+  "development": {
+    "username": "postgres",
+    "password": "Builder33",
+    "database": "test",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "production": {
     "username": "postgres",
     "password": "Builder33",
     "database": "test",

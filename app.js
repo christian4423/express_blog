@@ -15,6 +15,7 @@ const express = require('express'),
     usersController = require('./Controllers/users'),
     amazonController = require('./Controllers/amazon'),
     initDBController = require('./Controllers/initDB'),
+    accountController = require('./Controllers/account'),
     blogController = require('./Controllers/blog'),
     authController = require('./Controllers/authenticate'),
     verifyTokenController = require('./Controllers/verify'),
@@ -42,7 +43,7 @@ app.set('view engine', 'pug');
 
 //express settings
 app.use(favicon(path.join(__dirname, 'favicon.ico')));
-//app.use(logger('dev'));
+app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -50,8 +51,11 @@ app.use(cookieParser());
 
 app.set('jwt_sk', process.env.JWT_SK);
 
-
-
+app.use("/photos", express.static(path.join(__dirname, 'photos')));
+app.use(function (req, res, next) {
+    req.Path= __dirname;
+    next()
+});
 //console.log(`In enviorment: ${env}`)
 if (env === 'development') {
     //Access-Control
@@ -71,6 +75,8 @@ if (env === 'development') {
         res.setHeader('Access-Control-Allow-Credentials', true);
         next()
     });
+
+
 
     //Hot Reload
     app.use(webpackDevMiddleware(compiler, {
@@ -106,12 +112,14 @@ if (env === "production") {
     app.use(helmet());
     //Static Files
     app.use("/public", express.static(path.join(__dirname, 'public')));
+
 }
 
 
 
 
 
+app.use('/initDB', initDBController);
 app.use("/api", authController);
 app.use('/users', usersController);
 
@@ -120,11 +128,11 @@ app.use(verifyTokenController)
 
 
 app.use('/', routes);
+app.use('/account', accountController);
 
-//Routes
+// Routes
 app.use('/amazon', amazonController);
 
-app.use('/initDB', initDBController);
 app.use('/blog', blogController);
 
 

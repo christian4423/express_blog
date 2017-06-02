@@ -18,6 +18,40 @@ html {
     }
 }
 
+.profile_picture{
+  display: block;
+  width: 85px;
+  margin: 0 auto;
+  height: 85px;
+  object-fit: cover;
+  border: 2px solid white;
+  box-shadow: 0 0 10px #333;
+  border-radius: 100%;
+
+    @media(max-width: $screen-sm-min){
+        width: 65px;
+        height: 65px;
+    }
+
+    &--tiny{
+        display: inline-block;
+        width: 22px;
+        border: none;
+        height:22px;
+    }
+    &--blog{
+        display: inline-block;
+        width: 64px;
+        border: none;
+        height: 64px;
+        border: 3px solid #f0f0f0;
+    }
+}
+
+.tag_input_edit{
+    width: 85%;float: left;display: block;height: 20px;font-size: 1rem;
+}
+
 .table-container{
     width: 100%;
     min-width: 310px;
@@ -40,4 +74,55 @@ html {
 
 .ns-icon{
     margin: 0 5px;
+}
+
+nav{
+    border-radius: 0 !important;
+}
+
+.blog_post{
+    font-family: 'Arimo';
+    a{
+        color: darkgray;
+        margin-left: 5px;
+        font-size: 1.25rem;
+    }
+    .profile_picture {
+        margin-top: 10px;
+        box-shadow: 0 0 5px #333;
+    }
+    .__title{
+        font-size:1.75rem;
+        color:darkblue;
+    }
+    .__body{
+        font-size: 1.75rem;
+    }
+    .blog-tag{
+        display: inline-block;
+        border:1px solid black;
+        margin: 5px; 
+        margin-left: 0;   
+        padding:5px 15px 5px 15px;        
+        border-radius: 5px;
+        font-size: 1.25rem;
+        cursor: pointer;
+
+        &:hover{
+            background: lightblue;
+                color:red;
+        }
+
+        &--icon{
+            border:none;
+            &:hover{
+                background:white;
+                i{color:initial;}
+            }
+        }
+        
+    }
+    .editBtns{
+        a{color:white;}
+    }
 }

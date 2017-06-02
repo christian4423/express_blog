@@ -6,8 +6,9 @@
 
 var app = require('../app');
 var debug = require('debug')('flash-app:server');
-var http = require('http');
+var http = require('http').Server(app);
 var models = require('../Models');
+//var io = require('socket.io')(http);
 /**
  * Get port from environment and store in Express.
  */

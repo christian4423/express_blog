@@ -142,9 +142,8 @@ function display(req, res, next) {
     next();
 }
 
-function end(req, res, next) {
+function end(req, res) {
     res.end("database initializtion complete");
-    next();
 }
 
 

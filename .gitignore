@@ -16,7 +16,7 @@ build/
 bld/
 [Bb]in/
 [Oo]bj/
-
+photos/users/
 node_modules/
 public/
 

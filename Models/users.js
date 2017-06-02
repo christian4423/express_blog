@@ -28,7 +28,13 @@ module.exports = function (sequelize, DataTypes) {
             field: 'hash',
             unique: true,
             allowNull: false            
-        }      
+        },
+        profile_pic: {
+            type: DataTypes.TEXT,
+            field: 'profile_pic',
+            defaultValue: "/photos/default.jpg",
+            allowNull: true            
+        }       
     }, {
             classMethods: {
                 associate: function (models) {

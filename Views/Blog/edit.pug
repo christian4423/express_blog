@@ -1,0 +1,25 @@
+
+div.row        
+    div.col-xs-10.col-sm-8.col-md-6#blog_form
+        br
+        form(action="/blog/postBlog" method="post")      
+            input(type="hidden" value=`${ViewBag.User.userid}` name="user_id")          
+            div.form-group                                
+                input(name="subject" placeholder="Subject" type="text" value=`${ViewBag.blogs[0].subject}`).form-control
+            div.form-group                
+                textarea(name="body" placeholder="Body").form-control=`${ViewBag.blogs[0].body}`
+            div.form-group
+                div.btn-group                
+                    each tag in ViewBag.blogs[0].tags
+                        div.btn.btn-warning
+                            span=`${tag} `
+                            i.fa.fa-times
+                    div.btn.btn-info(data-action="tags_input")
+                        input(type="hidden" value="" placeholder="seperate with spaces" class="form-control tag_input_edit")
+                        i.fa.fa-plus
+            div.form-group.text-right
+                div.btn-group 
+                    div.btn.btn-danger(data-blog_edit_cancel="true")
+                        i.fa.fa-times                                   
+                    div(data-submit_blog=(ViewBag.blogs[0].blog_id) class="btn btn-success" title="Submit Form")
+                        i.fa.fa-paper-plane-o

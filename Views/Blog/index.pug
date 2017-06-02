@@ -1,0 +1,25 @@
+extends ../layout.pug
+
+block body_content
+    each blog in ViewBag.blogs
+        div.row.blog_post(data-blog=`${blog.blog_id}`)
+            div.col-xs-2.col-sm-1
+                img.profile_picture.profile_picture--blog(src=blog.profile_pic alt=`${blog.user_added}'s' Profile Picture` title=`${blog.user_added}'s' Profile Picture`)
+            div.col-xs-10.col-sm-6                
+                h5.__title(title="Post Owner")= blog.user_added
+                    a(href=`/blog/view/${blog.blog_id}` target="_blank")
+                        span(title="See post in new tab")= `${blog.time_ago}`
+                h3(title="Subject")= blog.subject
+                p(title="Body")!= blog.body
+                p(title="Tags")
+                    div.blog-tag.blog-tag--icon(title="tags")
+                        i.fa.fa-tags(style="display: inline-block")
+                    each tag in blog.tags
+                        div(title=tag).blog-tag 
+                            span=` ${tag}`      
+            div.col-xs-12.col-sm-6.editBtns.text-right
+                div.btn-group
+                    div.btn.btn-danger(data-blog_delete=`${blog.blog_id}`)
+                        i.fa.fa-trash-o
+                    div.btn.btn-success(data-blog_edit=`${blog.blog_id}`)
+                        i.fa.fa-pencil

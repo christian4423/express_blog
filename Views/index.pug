@@ -2,18 +2,47 @@ extends layout.pug
 
 block body_content
     div.row
-        div.col-xs-10.col-sm-8.col-md-6
-            h3= "Dashboard"
-    hr
-    div.row
-        div.col-xs-10.col-sm-8.col-md-6
-            form(action="/blog/postBlog" method="post")                
+        div.col-xs-6.col-sm-6.col-md-6
+            h2= `Welcome ${ViewBag.User.firstname} ${ViewBag.User.lastname}!`
+        div.col-xs-6.col-sm-6.col-md-6.text-right
+            div.btn.btn-primary(data-action="toggle_blog_form" title="Toggle blog form")
+                i.fa.fa-plus
+    div.row        
+        div.col-xs-10.col-sm-8.col-md-6#blog_form(style="display:none;")
+            br
+            form(action="/blog/postBlog" method="post")      
+                input(type="hidden" value=`${ViewBag.User.userid}` name="user_id")          
                 div.form-group                                
                     input(name="subject" placeholder="Subject" type="text").form-control
                 div.form-group                
                     textarea(name="body" placeholder="Body").form-control
                 div.form-group                
                     input(name="tags" placeholder="Tags" type="text").form-control
-                div.form-group                                    
-                    button(type="submit" class="btn btn-success")= "POST!"
+                div.form-group.text-right                                    
+                    button(type="submit" class="btn btn-success" title="Submit Form")
+                        i.fa.fa-paper-plane-o
     hr
+    div.row
+        div.col-xs-12
+            h3="News Feed"
+    if ViewBag.blogs.length > 0
+        each blog in ViewBag.blogs
+            hr
+            div.row.blog_post
+                div.col-xs-2.col-sm-1
+                    img.profile_picture.profile_picture--blog(src=blog.profile_pic alt=`${blog.user_added}'s' Profile Picture` title=`${blog.user_added}'s' Profile Picture`)
+                div.col-xs-10.col-sm-6                
+                    h5.__title(title="Post Owner")= blog.user_added
+                        a(href=`/blog/view/${blog.blog_id}` target="_blank")
+                            span(title="See post in new tab")= `${blog.time_ago}`
+                    h3(title="Subject")= blog.subject
+                    p.__body(title="Body")!= blog.body
+                    p(title="Tags")
+                        div.blog-tag.blog-tag--icon(title="tags")
+                            i.fa.fa-tags(style="display: inline-block")
+                        each tag in blog.tags
+                            div(title=tag).blog-tag 
+                                span=` ${tag}`  
+    else
+        h3="No Blogs"
+

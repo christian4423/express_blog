@@ -24,12 +24,12 @@ module.exports = function (sequelize, DataTypes) {
         },
         created_at:{
             type: DataTypes.DATE,
-            field: 'created_at',
+            field: 'createdAt',
             allowNull: true
         },
         updated_at:{
             type: DataTypes.DATE,
-            field: 'updated_at',
+            field: 'updatedAt',
             allowNull: true
         },
         user_added:{
