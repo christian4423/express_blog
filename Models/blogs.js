@@ -22,32 +22,38 @@ module.exports = function (sequelize, DataTypes) {
             field: 'tags',
             allowNull: true
         },
-        created_at:{
+        created_at: {
             type: DataTypes.DATE,
             field: 'createdAt',
             allowNull: true
         },
-        updated_at:{
+        updated_at: {
             type: DataTypes.DATE,
             field: 'updatedAt',
             allowNull: true
         },
-        user_added:{
+        user_added: {
             type: DataTypes.TEXT,
             field: 'user_added',
             allowNull: true
         },
-        user_updated:{
+        user_updated: {
             type: DataTypes.TEXT,
             field: 'user_updated',
             allowNull: true
         },
-        user_id:{
+        user_id: {
             type: DataTypes.INTEGER,
             field: 'user_id',
             allowNull: false
-        }                      
-    });
+        }
+    }, {
+            classMethods: {
+                associate: function (models) {
+                    Blog.belongsTo(models.User, { foreignKey: 'user_id', as: "User", onDelete: "SET NULL", onUpdate: "CASCADE", hooks: true })
+                }
+            },
+        });
     Blog.removeAttribute("id");
     return Blog;
 };

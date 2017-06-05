@@ -235,14 +235,4 @@ function renderProfile(req, res) {
 }
 router.get('/view/:id', setEnvVarsProfileGet, makeFindUserObj_Other, findUser_other, get_blogs, findUsers, blogTagsToArr, dateToStamp, renderProfile);
 
-
-
-
-
-
-
-
-//router.get('/view/:id', setEnvVarsProfileGet, makeFindUserObj_Other, findUser_other, renderProfile);
-
 module.exports = router;
-

@@ -33,64 +33,50 @@ function syncUsers(req, res, next) {
     UserModelSync.then(() => { next() });
     UserModelSync.catch((error) => { res.send(error) })
 }
-function findUsers(req, res, next) {
-
-    const blogs = req.ViewBag.blogs;
-    const FoundUsers = [];
-    if(blogs.length === 0){
-        next();
-    }
-    let index = 0;
-    for (let blog of blogs) {
-        let UserModelFind = UserModel.findOne({ where: { userid: blog.user_id } });
-        UserModelFind.then((user) => {
-            let data = user.dataValues;
-            req.ViewBag.blogs[index]["profile_pic"] = data.profile_pic;
-            let fn = data.firstname;
-            let ln = data.lastname;
-            req.ViewBag.blogs[index]["user_added"] = `${fn} ${ln} `;
-            index++;
-            if (index == (blogs.length)) {
-                next();
-            }
-        });
-        UserModelFind.catch((error) => { console.log(error) });
-    }
-}
 function blogTagsToArr(req, res, next) {
     const blogs = req.ViewBag.blogs;
-    if(blogs.length === 0){
+    if (blogs.length === 0) {
         next();
     }
     let index = 0;
     for (let blog of blogs) {
-        let tags = blog.tags;
+        let tags = blog.blog.tags;
         var tag_arr = tags.split(" ");
-        req.ViewBag.blogs[index]["tags"] = tag_arr;
+        req.ViewBag.blogs[index].blog["tags"] = tag_arr;
         index++;
     }
     next();
 }
 function dateToStamp(req, res, next) {
     const blogs = req.ViewBag.blogs;
-    if(blogs.length === 0){
+    if (blogs.length === 0) {
         next();
     }
     let index = 0;
     for (let blog of blogs) {
-        let date = blog.user_updated;
+        let date = blog.blog.user_updated;
         let time_ago = timeSince(date);
-        req.ViewBag.blogs[index]["time_ago"] = time_ago;
+        req.ViewBag.blogs[index].blog["time_ago"] = time_ago;
         index++;
     }
     next();
 }
 function getBlogs(req, res, next) {
-    const BlogModelFindAll = BlogModel.findAll({ order: '"updatedAt" DESC' });
+    const BlogModelFindAll = BlogModel.findAll({
+        order: '"updatedAt" DESC', 
+        include: [{
+            model: models.User,
+            as: "User"
+        }]
+    });
     BlogModelFindAll.then((blogs) => {
         req.ViewBag["blogs"] = [];
         for (let blog of blogs) {
-            req.ViewBag["blogs"].push(blog.dataValues);
+            let blog_obj = {
+                blog: blog.dataValues,
+                user: blog.User.dataValues
+            }
+            req.ViewBag["blogs"].push(blog_obj);
         }
         next();
     });
@@ -127,7 +113,7 @@ function timeSince(date) {
     interval = Math.floor(seconds);
     if (interval === 0) {
         return "now";
-    }    
+    }
     return Math.floor(seconds) + " sec";
 }
 
@@ -149,6 +135,6 @@ function render(req, res) {
     );
 }
 
-router.get('/', setViewBag, syncBlogs, getBlogs, syncUsers, findUsers, blogTagsToArr, dateToStamp, render);
+router.get('/', setViewBag, syncBlogs, syncUsers, getBlogs, blogTagsToArr, dateToStamp, render);
 
 module.exports = router;

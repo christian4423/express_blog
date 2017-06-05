@@ -27,22 +27,23 @@ block body_content
             h3="News Feed"
     if ViewBag.blogs.length > 0
         each blog in ViewBag.blogs
+            - let name = `${blog.user.firstname} ${blog.user.lastname}`
             hr
             div.row.blog_post
                 div.col-xs-2.col-sm-1
-                    img.profile_picture.profile_picture--blog(src=blog.profile_pic alt=`${blog.user_added}'s' Profile Picture` title=`${blog.user_added}'s' Profile Picture`)
+                    img.profile_picture.profile_picture--blog(src=blog.user.profile_pic alt=`${name}'s' Profile Picture` title=`${name}'s' Profile Picture`)
                 div.col-xs-10.col-sm-6                
                     h5.__title(title="Post Owner")
-                        a(href=`/profile/view/${blog.user_id}` target="_parent")
-                            span(title=`View ${blog.user_added}'s profile`)= blog.user_added
-                        a.time(href=`/blog/view/${blog.blog_id}` target="_blank")
-                            span(title="See post in new tab")= `${blog.time_ago}`
-                    h3(title="Subject")= blog.subject
-                    p.__body(title="Body")!= blog.body
+                        a(href=`/profile/view/${blog.user.userid}` target="_parent")
+                            span(title=`View ${name}'s profile`)= name
+                        a.time(href=`/blog/view/${blog.blog.blog_id}` target="_blank")
+                            span(title="See post in new tab")= `${blog.blog.time_ago}`
+                    h3(title="Subject")= blog.blog.subject
+                    p.__body(title="Body")!= blog.blog.body
                     p(title="Tags")
                         div.blog-tag.blog-tag--icon(title="tags")
                             i.fa.fa-tags(style="display: inline-block")
-                        each tag in blog.tags
+                        each tag in blog.blog.tags
                             div(title=tag).blog-tag 
                                 span=` ${tag}`  
     else
