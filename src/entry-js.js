@@ -21,6 +21,8 @@ require("./sass/main.scss");
 require('../node_modules/jquery/src/jquery.js');
 //Bootstrap
 require("../node_modules/bootstrap/dist/js/bootstrap.min.js");
+// SocketIO
+//require('../node_modules/socket.io-client/dist/socket.io.js');
 
 /********************
  *      Custom JS   *

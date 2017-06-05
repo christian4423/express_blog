@@ -1,0 +1,19 @@
+- let name = `${user.firstname} ${user.lastname}`
+hr
+div.row.blog_post
+    div.col-xs-2.col-sm-1
+        img.profile_picture.profile_picture--blog(src=user.profile_pic alt=`${name}'s' Profile Picture` title=`${name}'s' Profile Picture`)
+    div.col-xs-10.col-sm-6                
+        h5.__title(title="Post Owner")
+            a(href=`/profile/view/${user.userid}` target="_parent")
+                span(title=`View ${name}'s profile`)= name
+            a.time(href=`/blog/view/${blog.blog_id}` target="_blank")
+                span(title="See post in new tab")= `${blog.time_ago}`
+        h3(title="Subject")= blog.subject
+        p.__body(title="Body")!= blog.body
+        p(title="Tags")
+            div.blog-tag.blog-tag--icon(title="tags")
+                i.fa.fa-tags(style="display: inline-block")
+            each tag in blog.tags
+                div(title=tag).blog-tag 
+                    span=` ${tag}` 

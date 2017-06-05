@@ -8,19 +8,22 @@ var app = require('../app');
 var debug = require('debug')('flash-app:server');
 var http = require('http');
 var models = require('../Models');
-//var io = require('socket.io')(http);
+var server = http.createServer(app);
+var io = require('socket.io')(server);
 /**
  * Get port from environment and store in Express.
  */
 
 var port = normalizePort(process.env.PORT || '8081');
 app.set('port', port);
-
+app.set('socketio', io);
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+
+
+
 
 models.sequelize.sync().then(function() {
   /**

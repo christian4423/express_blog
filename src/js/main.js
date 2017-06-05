@@ -1,5 +1,17 @@
 ﻿window.onload = (function () {
     console.info("Js onload function invoked");
+    if (window.io) {
+
+        var socket = io.connect('http://localhost:8081');
+        socket.on('connect', function (data) {
+            socket.emit('join', 'Hello World from client');
+        });
+
+
+        socket.on('new_blog', function (data) {
+            $(".blog_container").prepend(data)
+        });
+    }
     $("[data-users=signup]").off();
     $("[data-users=signup]").on("click", function (e) {
         e.preventDefault();
@@ -63,6 +75,32 @@
     $("[data-blog_edit]").on("click", function () {
         let $this = $(this);
         invokeBlogEdit_btn($this);
+    });
+
+    $("[data-action=submit_new_blog]").off();
+    $("[data-action=submit_new_blog]").on("click", function () {
+        let $this = $(this);
+        let $parent = $this.parent();
+        let $form = $parent.parent();
+        let data = $form.serialize();
+        $.ajax({
+            url: "/blog/postBlog",
+            type: "POST",
+            data: data,
+            complete: function () {
+                $("#blog_form").slideToggle();
+                let inputs = $form.find("input");
+                let textarea = $form.find("textarea");
+                $.each(inputs, function (i, input) {
+                    $(input).val("");
+                    $(input).text("");
+                })
+                $.each(textarea, function (i, input) {
+                    $(textarea).val("");
+                    $(textarea).text("");
+                })
+            }
+        })
     });
 })();
 

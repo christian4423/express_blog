@@ -63,7 +63,7 @@ function dateToStamp(req, res, next) {
 }
 function getBlogs(req, res, next) {
     const BlogModelFindAll = BlogModel.findAll({
-        order: '"updatedAt" DESC', 
+        order: '"updatedAt" DESC',
         include: [{
             model: models.User,
             as: "User"
@@ -120,6 +120,7 @@ function timeSince(date) {
 function render(req, res) {
     const ri = req.renderInfo;
     const data = req.data;
+
 
     res.render(ri.view, data,
         function (err, html) {

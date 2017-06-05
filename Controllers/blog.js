@@ -50,7 +50,7 @@ function postBlog(req, res, next) {
 
         BlogModel.create(modelObj)
             .then(function (responce) {
-                req["res"] = responce;
+                req["newBlog"] = responce.dataValues;
                 next();
             })
             .catch(function (error) {
@@ -63,9 +63,47 @@ function postBlog(req, res, next) {
             })
     });
 }
+function getLatestBlog(req, res, next) {
+    let nb = req["newBlog"];
+    var io = req.app.get('socketio');
+    const BlogModelFindOne = BlogModel.findAll({
+        where: { blog_id: nb.blog_id },
+        include: [{
+            model: models.User,
+            as: "User"
+        }]
+    });
+    BlogModelFindOne.then((blogs) => {
+        req.ViewBag["blogs"] = [];
+        for (let blog of blogs) {
+            blog.dataValues.tags = blog.dataValues.tags.split(" ");
+            let date = blog.user_updated;
+            let time_ago = timeSince(date);
+            blog.dataValues["time_ago"] = time_ago;
+            let blog_obj = {
+                blog: blog.dataValues,
+                user: blog.User.dataValues
+            }
+            req.ViewBag["blogs"].push(blog_obj);
+        }
 
-function goHome(req, res, next) {
-    res.redirect("/");
+        res.render("Blog/blogSinglePartial", req.ViewBag["blogs"][0],
+            function (err, html) {
+                if (err) {
+                    err.status = 500;
+                    console.log(err);
+                    throw err
+                }
+                else {
+                    io.sockets.emit("new_blog", html);
+                    res.end();
+                }
+            }
+        );
+    });
+    BlogModelFindOne.catch((error) => {
+        res.send(error);
+    });
 }
 function updateBlog(req, res, next) {
     req["ViewBag"]["blogs"] = []
@@ -137,7 +175,7 @@ function returnNewBlogView(req, res, next) {
 
 router.use(syncUsers, BlogModelSync)
 
-router.post('/postBlog', postBlog, goHome);
+router.post('/postBlog', postBlog, BlogModelSync, getLatestBlog);
 router.post('/edit/', updateBlog, BlogModelSync, GetBlog, findUsers, blogTagsToArr, dateToStamp, returnNewBlogView);
 router.post('/delete/', deleteBlog);
 
@@ -201,7 +239,7 @@ function syncUsers(req, res, next) {
 }
 function findUsers(req, res, next) {
     const blogs = req.ViewBag.blogs;
-    if(blogs.length <= 0){
+    if (blogs.length <= 0) {
         next();
     }
     const FoundUsers = [];
@@ -224,7 +262,7 @@ function findUsers(req, res, next) {
 }
 function blogTagsToArr(req, res, next) {
     const blogs = req.ViewBag.blogs;
-    if(blogs.length <= 0){
+    if (blogs.length <= 0) {
         next();
     }
     let index = 0;
@@ -238,7 +276,7 @@ function blogTagsToArr(req, res, next) {
 }
 function dateToStamp(req, res, next) {
     const blogs = req.ViewBag.blogs;
-    if(blogs.length <= 0){
+    if (blogs.length <= 0) {
         next();
     }
     let index = 0;

@@ -10,10 +10,10 @@ module.exports = function (sequelize, DataTypes) {
         subject: {
             type: DataTypes.STRING,
             field: 'subject',
-            allowNull: false
+            allowNull: true
         },
         body: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             field: 'body',
             allowNull: false
         },

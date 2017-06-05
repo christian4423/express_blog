@@ -1,0 +1,42 @@
+nav.navbar.navbar-inverse.bg-inverse
+    div.container
+        div.navbar-header
+            button.navbar-toggle.collapsed(type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="false")
+                span.sr-only Toggle navigation
+                span.icon-bar
+                span.icon-bar
+                span.icon-bar
+            a.navbar-brand(href="/")= page_title
+        div.collapse.navbar-collapse(id="collapse1")
+            ul.nav.navbar-nav
+                li#home
+                    a(href="/") Home 
+                        span.sr-only (current)
+                li#products.active
+                    a(href="/blog/myBlogs") My Blogs 
+                        span.sr-only (current)
+            ul.nav.navbar-nav.navbar-right
+                li.dropdown                    
+                    a.dropdown-toggle(href="#" data-toggle="dropdown" role="button", aria-haspopup="true" aria-expanded="false")
+                        img(src=`${ViewBag.User.profile_pic}` class="profile_picture profile_picture--tiny" alt=`${ViewBag.User.firstname} ${ViewBag.User.lastname}'s profile picture`)
+                        span=` ${ViewBag.User.firstname} ${ViewBag.User.lastname}`
+                    ul.dropdown-menu
+                        if(ViewBag.name == 'Guest')
+                            li                                
+                                a(href="/users/signup") 
+                                span.glyphicon.glyphicon-pencil.ns-icon
+                                span="Sign up"
+                            li                            
+                                a(href="/users/login") 
+                                i.fa.fa-handshake-o.ns-icon(aria-hidden="true")
+                                span="Login"
+                        else
+                            li
+                                
+                                a(href="/account/") 
+                                    i.fa.fa-cog.ns-icon(aria-hidden="true")
+                                    span="Account"                                
+                                a(href="/users/logout") 
+                                    i.fa.fa-hand-spock-o.ns-icon(aria-hidden="true")
+                                    span="Logout"
+                                    
