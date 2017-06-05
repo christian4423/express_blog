@@ -1,4 +1,8 @@
 ﻿window.onload = (function () {
+    if(window.tinymce){
+tinymce.init({ selector:'textarea' });  
+    }
+    
     console.info("Js onload function invoked");
     if (window.io) {
 

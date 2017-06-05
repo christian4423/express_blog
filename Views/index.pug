@@ -2,13 +2,13 @@ extends layout.pug
 
 block body_content
     div.row
-        div.col-xs-6.col-sm-6.col-md-6
-            h2= `Welcome ${ViewBag.User.firstname} ${ViewBag.User.lastname}!`
-        div.col-xs-6.col-sm-6.col-md-6.text-right
+        div.col-xs-10.col-sm-10.col-md-11
+            h2.headingIntro= `Hi ${ViewBag.User.firstname} ${ViewBag.User.lastname}!`
+        div.col-xs-2.col-sm-2.col-md-1.text-right
             div.btn.btn-primary(data-action="toggle_blog_form" title="Toggle blog form")
                 i.fa.fa-plus
     div.row        
-        div.col-xs-10.col-sm-8.col-md-6#blog_form(style="display:none;")
+        div.col-xs-12.col-sm-10.col-md-8#blog_form(style="display:none;")
             br
             form(action="/blog/postBlog" method="post")      
                 input(type="hidden" value=`${ViewBag.User.userid}` name="user_id")          
@@ -32,13 +32,13 @@ block body_content
                     - let name = `${blog.user.firstname} ${blog.user.lastname}`
                     hr
                     div.row.blog_post
-                        div.col-xs-2.col-sm-1
+                        div.col-xs-3.col-sm-2.col-md-1.mobile-hide
                             img.profile_picture.profile_picture--blog(src=blog.user.profile_pic alt=`${name}'s' Profile Picture` title=`${name}'s' Profile Picture`)
-                        div.col-xs-10.col-sm-6                
+                        div.col-xs-9.col-sm-6                
                             h5.__title(title="Post Owner")
                                 a(href=`/profile/view/${blog.user.userid}` target="_parent")
                                     span(title=`View ${name}'s profile`)= name
-                                a.time(href=`/blog/view/${blog.blog.blog_id}` target="_blank")
+                                a.time(href=`/blog/view/${blog.blog.blog_id}` target="_parent")
                                     span(title="See post in new tab")= `${blog.blog.time_ago}`
                             h3(title="Subject")= blog.blog.subject
                             p.__body(title="Body")!= blog.blog.body

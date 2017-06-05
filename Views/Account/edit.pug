@@ -1,26 +1,31 @@
 extends ../layout.pug
 
 block body_content
-    form(action="/account/edit" method="post" enctype="multipart/form-data")
-        div.row.form-group
-            div.col-xs-2.col-sm-2.col-md-1
-                h3= `Name: `
-            div.col-xs-10.col-sm-4.col-md-3
+    div.row
+        div.col-xs-12
+            ol.breadcrumb
+                li
+                    a(href="/")
+                        span="Home"
+                li
+                    a(href="/account")
+                        span="Account"                        
+                li.active
+                    span="Edit"
+    div.row
+        div.col-xs-12.col-sm-8.col-sm-offset-2.col-md-6.col-md-offset-0
+            form(action="/account/edit" method="post" enctype="multipart/form-data")
                 input(type="hidden" value=`${ViewBag.User.userid}` name="userid")
-                input.form-control(type="text" value=`${ViewBag.User.firstname}` name="firstname" required="true" placeholder="First Name" style="margin-top:15px")
-            div.col-xs-12.col-sm-4.col-md-3
-                input.form-control(type="text" value=`${ViewBag.User.lastname}` required="true" name="lastname" placeholder="Last Name" style="margin-top:15px")
-        div.row.form-group
-            div.col-xs-2.col-sm-2.col-md-1
-                h3= "Email: "
-            div.col-xs-5.col-sm-4.col-md-3
-                input.form-control(type="text" value=`${ViewBag.User.email}` required="true" name="email" placeholder="Email" style="margin-top:15px")
-        div.row.form-group
-            div.col-xs-2.col-sm-2.col-md-1
-                img(src=`${ViewBag.User.profile_pic}` class="profile_picture" alt=`${ViewBag.User.firstname} ${ViewBag.User.lastname}'s profile picture`)
-            div.col-xs-5.col-sm-4.col-md-3
-                input.form-control(type="file" value=`${ViewBag.User.profile_pic}` name="profile_pic" placeholder="/photos/default.jpg" style="margin-top:15px")
-        div.row.form-group
-            div.col-xs-12.col-sm-12.col-md-12
-                input.btn.btn-success(type="submit" value=`Save!`)
-    hr
+                div.form-group
+                    label=`Name:`                    
+                    input.form-control(type="text" value=`${ViewBag.User.firstname}` name="firstname" required="true" placeholder="First Name" style="margin-top:15px")
+                    input.form-control(type="text" value=`${ViewBag.User.lastname}` required="true" name="lastname" placeholder="Last Name" style="margin-top:15px")                    
+                div.form-group
+                    label= "Email:"
+                    input.form-control(type="text" value=`${ViewBag.User.email}` required="true" name="email" placeholder="Email" style="margin-top:15px")
+                div.form-group                        
+                    label= "Profile Photo:"
+                    input.form-control(type="file" value=`${ViewBag.User.profile_pic}` name="profile_pic" placeholder="/photos/default.jpg" style="margin-top:15px")
+                div.form-group
+                    input.btn.btn-success(type="submit" value=`Save!`)
+            hr

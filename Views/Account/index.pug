@@ -2,10 +2,20 @@ extends ../layout.pug
 
 block body_content
     div.row
-        div.col-xs-2.col-sm-2.col-md-1
-            img(src=`${ViewBag.User.profile_pic}` class="profile_picture" alt=`${ViewBag.User.firstname} ${ViewBag.User.lastname}'s profile picture`)
-        div.col-xs-10.col-sm-8.col-md-6
-            h3= `Hello ${ViewBag.User.firstname} ${ViewBag.User.lastname}`
+        div.col-xs-12
+            ol.breadcrumb
+                li
+                    a(href="/")
+                        span="Home"
+                li.active
+                    span="Account"
+     
+    div.row
+        - let name = ViewBag.User.firstname + " " + ViewBag.User.lastname
+        div.col-xs-3.col-sm-2.col-md-1
+            img(src=`${ViewBag.User.profile_pic}` class="profile_picture" alt=`${name}'s profile picture`)
+        div.col-xs-9.col-sm-8.col-md-6
+            h3= `Hi ${name}!`
     hr
     div.row
         div.col-xs-2.col-sm-2.col-md-2

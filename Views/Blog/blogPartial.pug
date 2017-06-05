@@ -1,7 +1,7 @@
 div.row.blog_post(data-blog=`${blog.blog_id}`)
-    div.col-xs-2.col-sm-1
+    div.col-xs-3.col-sm-2.col-md-1.mobile-hide
         img.profile_picture.profile_picture--blog(src=blog.profile_pic alt=`${blog.user_added}'s' Profile Picture` title=`${blog.user_added}'s' Profile Picture`)
-    div.col-xs-10.col-sm-6                
+    div.col-xs-9.col-sm-6                
         h5.__title(title="Post Owner")
             a(href=`/profile/view/${blog.user_id}` target="_parent")
                 span(title=`View ${blog.user_added}'s profile`)= blog.user_added

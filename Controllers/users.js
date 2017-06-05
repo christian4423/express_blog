@@ -88,14 +88,12 @@ router.post('/addUser',
         return false;
     }, function (req, res, next) { //testing hash
         const secret = req.modelObj.hash;
-        console.log("SECRET", secret)
         pass(req.body.password).verifyAgainst(secret, function (error, verified) {
             if (error)
                 throw new Error('Something went wrong!');
             if (!verified) {
-                res.status(500).send(false);
+                res.send(false);
             } else {
-                console.log("VERFIY", verified);
                 next()
             }
         });
@@ -114,8 +112,7 @@ router.post('/addUser',
                         message: "Could not create user model",
                         error
                     }
-                    res.status(500).send(err);
-                    res.end();
+                    res.send(err);
                 })
         });
         return false;
@@ -124,8 +121,7 @@ router.post('/addUser',
         UserRoleModel.sync().then(function () {
             UserRoleModel.create({ user_id: user_id, role_id: 2 })
                 .then(function (responce) {
-                    res.status(200).send(true);
-                    next();
+                    res.redirect("/");
                 })
                 .catch(function (error) {
                     const err = {
@@ -133,8 +129,7 @@ router.post('/addUser',
                         message: "Could not create user role model",
                         error
                     }
-                    res.status(500).send(err);
-                    next();
+                    res.send(err);
                 })
         });
         return false;

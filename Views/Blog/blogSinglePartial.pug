@@ -1,9 +1,9 @@
 - let name = `${user.firstname} ${user.lastname}`
 hr
 div.row.blog_post
-    div.col-xs-2.col-sm-1
+    div.col-xs-3.col-sm-2.col-md-1
         img.profile_picture.profile_picture--blog(src=user.profile_pic alt=`${name}'s' Profile Picture` title=`${name}'s' Profile Picture`)
-    div.col-xs-10.col-sm-6                
+    div.col-xs-9.col-sm-6                
         h5.__title(title="Post Owner")
             a(href=`/profile/view/${user.userid}` target="_parent")
                 span(title=`View ${name}'s profile`)= name
