@@ -1,0 +1,31 @@
+if Item
+    if Item.length > 0 
+        div.row
+            each item in Item
+                if parseInt(item.OfferSummary.TotalNew) > 0
+                    div.col-xs-12.col-sm-12.__product-result
+                        hr                
+                        div.row
+                            div.col-xs-12.text-center
+                                - let title = item.ItemAttributes.Title    
+                                if item.ImageSets
+                                    if item.ImageSets.ImageSet.length > 0
+                                        - let images = item.ImageSets.ImageSet
+                                        - let id = `carousel-results${item.ASIN}`
+                                        include ./_caro
+                                    else                            
+                                        img.__image(src=item.ImageSets.ImageSet.MediumImage.URL)
+                        div.row
+                            div.col-xs-12.col-sm-10.col-sm-offset-1.text-left
+                                h4.__title.__title--dark=title    
+                        div.row
+                            div.col-xs-12.col-sm-10.col-sm-offset-1.text-right
+                                div.btn.btn-primary(data-dismiss="modal" data-product-to-blog=item.ASIN aria-label="Close" title="Closes Modal")                                
+                                    i.fa.fa-check  
+                                    span=" Select "                                
+                                    span.badge=item.OfferSummary.LowestNewPrice.FormattedPrice     
+    else
+        div.row
+            div.col-xs-12.text-center
+                hr
+                h4="No Results"

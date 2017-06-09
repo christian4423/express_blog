@@ -46,6 +46,11 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             field: 'user_id',
             allowNull: false
+        },
+        product_id: {
+            type: DataTypes.STRING,
+            field: 'product_id',
+            allowNull: true
         }
     }, {
             classMethods: {

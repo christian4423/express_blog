@@ -1,0 +1,26 @@
+form#productSearchForm.dig-form.form-horizontal(action="/blog/postBlog" method="post")
+            input(type="hidden" value="1" name="ItemPage")
+            div.form-group
+                label(for="SearchIndex")="Category"
+                include ./_productSearchForm_SearchIndexSelect
+            div.form-group
+                label.__required(for="Keywords")="Keywords"
+                input(type="text" name="Keywords" required placeholder="Seperate By Spaces").form-control
+            div.form-group.text-right
+                div(class="btn btn-primary" title="Search Product" data-form="#productSearchForm" data-action="search_amazon_api")
+                    i.fa.fa-search
+            div.row
+                div.col-xs-12.text-center
+                    nav
+                        ul.pagination(style="cursor")
+                            li.active(data-setItemPage="1" data-form="#productSearchForm")
+                                a(herf="#")=1
+                            li(data-setItemPage="2" data-form="#productSearchForm")
+                                a(herf="#")=2
+                            li(data-setItemPage="3" data-form="#productSearchForm")
+                                a(herf="#")=3
+                            li(data-setItemPage="4" data-form="#productSearchForm")
+                                a(herf="#")=4
+                            li(data-setItemPage="5" data-form="#productSearchForm")
+                                a(herf="#")=5
+                    

@@ -119,7 +119,7 @@
     $("[data-action=submit_new_blog]").on("click", function () {
         let $this = $(this);
         let $parent = $this.parent();
-        let $form = $parent.parent();
+        let $form = $($this.data().form)
         let data = $form.serialize();
         $.ajax({
             url: "/blog/postBlog",
@@ -140,7 +140,79 @@
             }
         })
     });
+
+    $("[data-action=search_amazon_api]").off();
+    $("[data-action=search_amazon_api]").on("click", function () {
+        let $this = $(this);
+        let btn_data = $this.data();
+        let $form = $(btn_data.form);
+        let input = $form.find("input[name=VariationPage]")
+        input.val("1")
+        let data = $form.serialize();
+        searchAmazon(data)
+    });
+
+    $("[data-setItemPage]").off();
+    $("[data-setItemPage]").on("click", function () {
+        let $this = $(this);        
+        let parent = $this.parent()
+        let prev = parent.find(".active")
+        let btn_data = $this.data();
+        prev.removeClass("active");
+        $this.addClass("active");
+        let $form = $(btn_data.form);
+        let input = $form.find("input[name=ItemPage]")
+        let val = btn_data.setitempage;
+        input.val(val);
+        let data = $form.serialize();
+        searchAmazon(data)
+
+    });
+
+    getBlogProducts();
+
 })();
+
+
+function getBlogProducts(){
+    let products = $("[data-getBlogProduct]");
+    $.each(products, function(i, product){
+        let $p = $(product);
+        let $p_data = $p.data();
+        getSingleProduct($p, $p_data.getblogproduct);        
+    })
+}
+function getSingleProduct($p, asin){
+        return $.ajax({
+            url: "/amazon/searchForOne",
+            type: "GET",
+            data: {product_id: asin},
+            success: function (responce) {
+                $p.parent().html(responce)
+                return false;
+            }
+        });
+}
+function searchAmazon(data){
+        return $.ajax({
+            url: "/amazon/search",
+            type: "GET",
+            data: data,
+            success: function (responce) {
+                $("[data-placement=product_modal_results]").html(responce);
+                invokeProductToBlog()
+                return false;
+            }
+        });
+}
+function invokeProductToBlog(){
+$("[data-product-to-blog]").off();
+$("[data-product-to-blog]").on("click", function(){
+    $("input[name=product_id]").val($(this).data().productToBlog);
+    $("#spanBlogText").text(" Product Selected")
+})
+}
+
 
 function getblogComments(blog_id) {
     $.ajax({
@@ -157,8 +229,8 @@ function getblogComments(blog_id) {
                         $text_area.focus();
                     });
                 }
-                else{
-                   $text_area.focus(); 
+                else {
+                    $text_area.focus();
                 }
             }, 100)
             let $form = $comment_area.find("form");

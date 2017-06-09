@@ -8,22 +8,14 @@ block body_content
             div.btn.btn-primary(data-action="toggle_blog_form" title="Toggle blog form")
                 i.fa.fa-plus
     div.row        
-        div.col-xs-12.col-sm-10.col-md-8#blog_form(style="display:none;")
+        div.col-xs-12.col-sm-10.col-sm-offset-1.col-md-6.col-md-offset-0#blog_form(style="display:none;")
             br
-            form(action="/blog/postBlog" method="post")      
-                input(type="hidden" value=`${ViewBag.User.userid}` name="user_id")          
-                div.form-group                                
-                    input(name="subject" placeholder="Subject" type="text").form-control
-                div.form-group                
-                    textarea(name="body" placeholder="Body").form-control
-                div.form-group                
-                    input(name="tags" placeholder="Tags" type="text").form-control
-                div.form-group.text-right                                    
-                    div(class="btn btn-success" title="Submit Form" data-action="submit_new_blog")
-                        i.fa.fa-paper-plane-o
+            include Blog/_blogForm
     hr
+    include Products/_productModal
     div.row
         div.col-xs-12
             h3="News Feed"
     include shared/blogs/_blogs
+        
 

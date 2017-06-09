@@ -1,0 +1,14 @@
+div.modal.fade#product_modal(tabindex="-1" role="dialog" style="display:none;")
+        div.modal-dialog(role="document")
+            div.modal-content
+                div.modal-header
+                    button.close(type="button" data-dismiss="modal" aria-label="Close")
+                        span(aria-hidden="true")!= "&times;"
+                    h4.modal-title= "Product Search"
+                div.modal-body
+                    div.row
+                        div.col-xs-12.col-sm-10.col-sm-offset-1
+                            include ./_productSearchForm
+                    div.row
+                        div.col-xs-12.col-sm-10.col-sm-offset-1
+                            div(data-placement="product_modal_results")

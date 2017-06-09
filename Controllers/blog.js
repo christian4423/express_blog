@@ -36,6 +36,8 @@ function postBlog(req, res, next) {
     const subject = data.subject;
     const body = bod;
     const tags = data.tags;
+    let product_id;
+
     const user_id = parseInt(data.user_id);
     const user_added = name;
     const user_updated = Date.now();
@@ -46,6 +48,9 @@ function postBlog(req, res, next) {
         user_id,
         user_added,
         user_updated,
+    }
+    if (data.product_id !== "" || data.product_id !== "-1") {
+        modelObj["product_id"] = data.product_id;
     }
     req["modelObj"] = modelObj;
     BlogModel.sync().then(function () {
@@ -265,7 +270,7 @@ router.post('/popularity/', updateBlogPopularity);
 router.post('/comment/', addCommentToBlog);
 
 // router.post('/postBlog', postBlog, goHome);
-router.get('/view/:id', setEnvVarsBlogGet, GetBlogCurrent,blogTagsToArrCurrent, dateToStampCurrent, renderGet);
+router.get('/view/:id', setEnvVarsBlogGet, GetBlogCurrent, blogTagsToArrCurrent, dateToStampCurrent, renderGet);
 router.get('/edit/:id', setEnvVarsBlogGet, GetBlog, findUsers, blogTagsToArrDepricated, renderGetEdit);
 router.get('/myBlogs', setEnvVarsBlogGet, GetMyBlogs, blogTagsToArrCurrent, dateToStampCurrent, renderGet);
 router.get('/comments', GetComments);
@@ -275,7 +280,7 @@ router.get('/comments', GetComments);
 function GetComments(req, res, next) {
     let blog_id = req.params.blog_id || req.body.blog_id || req.query.blog_id;
     const BCM_ALL = BlogComModel.findAll({
-        where: { blog_id }, order: '"updatedAt" DESC',include: [{
+        where: { blog_id }, order: '"updatedAt" DESC', include: [{
             model: models.User,
             as: "User"
         }]

@@ -21,7 +21,11 @@ div.row
                                 i.fa.fa-tags(style="display: inline-block")
                             each tag in blog.blog.tags
                                 div(title=tag).blog-tag 
-                                    span=` ${tag}`  
+                                    span=` ${tag}`
+                        div.row.__product
+                            div.col-xs-12(data-placement="blog_product")
+                                if blog.blog.product_id
+                                    p(data-getBlogProduct=blog.blog.product_id)=blog.blog.product_id
                         div.row
                             div.col-xs-8
                                 hr
@@ -47,6 +51,8 @@ div.row
                                         span.badge(data-digit_badge=blog_id)=`${blog.rep.positive}`
                         div.row.__comments-container
                             div.col-xs-12(data-place_comments=blog_id)
+
+
             else
                 h3="No Blogs"
 

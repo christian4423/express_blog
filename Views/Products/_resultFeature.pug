@@ -1,0 +1,32 @@
+if Item
+    if Item.length > 0 
+        div.row
+            each item in Item
+                if parseInt(item.OfferSummary.TotalNew) > 0
+                - let title = item.ItemAttributes.Title   
+                    div.col-xs-12.col-sm-12.__product-result.__product-result--single
+                        hr     
+                        div.row
+                            div.col-xs-12.col-sm-12.text-left
+                                h4.__title.__title--dark=title              
+                        div.row                
+                            div.col-xs-12.text-center.__feature                                 
+                                if item.ImageSets
+                                    if item.ImageSets.ImageSet.length > 0
+                                        - let images = item.ImageSets.ImageSet
+                                        - let id = `carousel-results${item.ASIN}`
+                                        include ./_caro
+                                    else                            
+                                        img.__image(src=item.ImageSets.ImageSet.HiResImage.URL) 
+                        div.row
+                            div.col-xs-12.text-right
+                                br
+                                a.btn.btn-warning(style="color: black;" href=item.DetailPageURL target="_blank" data-dismiss="modal" data-product-to-blog=item.ASIN aria-label="Close" title="Closes Modal")                                
+                                    i.fa.fa-amazon  
+                                    span=" Checkout "                                
+                                    span(style="color: black;").badge=item.OfferSummary.LowestNewPrice.FormattedPrice     
+    else
+        div.row
+            div.col-xs-12.text-center
+                hr
+                h4="No Results"

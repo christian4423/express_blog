@@ -190,3 +190,60 @@ nav{
     }
 }
 
+.dig-form{
+    margin-left: 1.7rem;
+    margin-right: 1.7rem;
+    .__required{
+        &:after{
+            content: ' *';
+            color:red;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+    }
+}
+
+.__product-result{
+    padding: 1rem;
+    :hover{
+        cursor: pointer;        
+    }
+    .__image{
+        padding:5px;
+    }
+    .__title{
+        font-size:1.5rem;
+        color: white;
+        font-weight: bold;
+        text-shadow: 0 0 15px #000;
+        &--dark{
+            color: black;
+            text-shadow: none;
+        }
+    }
+    li{
+        box-shadow: 0 0 15px #000;        
+    }
+    img.__caroimg{
+        margin: 0 auto;
+        display: block;
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+        padding: 10px;
+    }
+
+    &--single{
+        .__feature{
+            img.__caroimg{
+                margin: 0 auto;
+                display: block;
+                width: 1200px;
+                height: auto !important;
+                object-fit: contain;
+                padding: 10px;
+            } 
+        }
+    }
+}
+

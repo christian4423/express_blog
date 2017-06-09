@@ -1,0 +1,30 @@
+- let length = images.length
+div.carousel.slide(id=id data-ride="carousel")
+        ol.carousel-indicators
+            - for(let i = 0; i < length; i++){
+                if i == 0
+                    li.active(data-target=`#${id}` data-slide-to=`${i}`)
+                else
+                    li(data-target=`#${id}` data-slide-to=`${i}`)
+            - }
+        div.carousel-inner(role="listbox")
+            - for(let i = 0; i < length; i++){
+                if i == 0
+                    div.item.active
+                        if images[i].HiResImage
+                            img.__caroimg(src=images[i].HiResImage.URL)
+                        else
+                            img.__caroimg(src=images[i].MediumImage.URL)
+                else
+                    div.item
+                        if images[i].HiResImage
+                            img.__caroimg(src=images[i].HiResImage.URL)
+                        else
+                            img.__caroimg(src=images[i].MediumImage.URL)
+            - }
+        a.left.carousel-control(href=`#${id}` role="Button" data-slide="prev")
+            span.glyphicon.glyphicon-chevron-left(aria-hidden="true")
+            span.sr-only="Previous"
+        a.right.carousel-control(href=`#${id}` role="Button" data-slide="next")
+            span.glyphicon.glyphicon-chevron-right(aria-hidden="true")
+            span.sr-only="Next"
