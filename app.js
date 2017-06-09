@@ -136,7 +136,9 @@ app.use('/amazon', amazonController);
 app.use('/blog', blogController);
 
 
-
+app.all('*', function(req, res) {
+  res.redirect("/");
+});
 
 
 
