@@ -67,6 +67,9 @@ function getBlogs(req, res, next) {
         include: [{
             model: models.User,
             as: "User"
+        },{
+            model: models.BlogPopularity,
+            as: "Popularity"
         }]
     });
     BlogModelFindAll.then((blogs) => {
@@ -74,7 +77,8 @@ function getBlogs(req, res, next) {
         for (let blog of blogs) {
             let blog_obj = {
                 blog: blog.dataValues,
-                user: blog.User.dataValues
+                user: blog.User.dataValues,
+                rep: blog.Popularity.dataValues
             }
             req.ViewBag["blogs"].push(blog_obj);
         }

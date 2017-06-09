@@ -1,0 +1,81 @@
+div.row
+    div.col-xs-12.blog_container        
+        if ViewBag.blogs.length > 0
+            each blog in ViewBag.blogs
+                - let name = `${blog.user.firstname} ${blog.user.lastname}`
+                - let blog_id = blog.blog.blog_id
+                hr
+                div.row.blog_post
+                    div.col-xs-3.col-sm-2.col-md-1.mobile-hide
+                        img.profile_picture.profile_picture--blog(src=blog.user.profile_pic alt=`${name}'s' Profile Picture` title=`${name}'s' Profile Picture`)
+                    div.col-xs-12.col-sm-6                
+                        h5.__title(title="Post Owner")
+                            a(href=`/profile/view/${blog.user.userid}` target="_parent")
+                                span(title=`View ${name}'s profile`)= name
+                            a.time(href=`/blog/view/${blog_id}` target="_parent")
+                                span(title="See post in new tab")= `${blog.blog.time_ago}`
+                        h3(title="Subject")= blog.blog.subject
+                        p.__body(title="Body")!= blog.blog.body
+                        p(title="Tags")
+                            div.blog-tag.blog-tag--icon(title="tags")
+                                i.fa.fa-tags(style="display: inline-block")
+                            each tag in blog.blog.tags
+                                div(title=tag).blog-tag 
+                                    span=` ${tag}`  
+                        div.row
+                            div.col-xs-8
+                                hr
+                        div.__popularity-container.row
+                            div.col-xs-4
+                                div.btn.btn-default(title="Comment" data-blog_comment=blog_id)
+                                    i.fa.fa-comment                                
+                            div.col-xs-3.col-sm-2.text-center
+                                div.btn.btn-default(title="Shove it!" data-shoveit=blog_id)
+                                    i.fa.fa-thumbs-o-down
+                                    span!="&nbsp;"
+                                    if blog.rep.negative > 0
+                                        span.badge.badge--red(data-shoveit_badge=blog_id)= blog.rep.negative
+                                    else
+                                        span.badge(data-shoveit_badge=blog_id)=`${blog.rep.negative}`
+                            div.col-xs-3.col-sm-2.text-center
+                                div.btn.btn-default(title="Dig it!" data-digit=blog_id)
+                                    i.fa.fa-thumbs-o-up
+                                    span!="&nbsp;"
+                                    if blog.rep.positive > 0
+                                        span.badge.badge--green(data-digit_badge=blog_id)=`${blog.rep.positive}`
+                                    else
+                                        span.badge(data-digit_badge=blog_id)=`${blog.rep.positive}`
+                        div.row.__comments-container
+                            div.col-xs-12(data-place_comments=blog_id)
+            else
+                h3="No Blogs"
+
+
+
+
+
+
+//- div.row.blog_post(data-blog=`${blog.blog_id}`)
+//-     div.col-xs-3.col-sm-2.col-md-1.mobile-hide
+//-         img.profile_picture.profile_picture--blog(src=blog.profile_pic alt=`${blog.user_added}'s' Profile Picture` title=`${blog.user_added}'s' Profile Picture`)
+//-     div.col-xs-9.col-sm-6                
+//-         h5.__title(title="Post Owner")
+//-             a(href=`/profile/view/${blog.user_id}` target="_parent")
+//-                 span(title=`View ${blog.user_added}'s profile`)= blog.user_added
+//-             a.time(href=`/blog/view/${blog.blog_id}` target="_blank")
+//-                 span(title="See post in new tab")= `${blog.time_ago}`
+//-         h3(title="Subject")= blog.subject
+//-         p(title="Body")!= blog.body
+//-         p(title="Tags")
+//-             div.blog-tag.blog-tag--icon(title="tags")
+//-                 i.fa.fa-tags(style="display: inline-block")
+//-             each tag in blog.tags
+//-                 div(title=tag).blog-tag 
+//-                     span=` ${tag}`      
+//-     div.col-xs-12.col-sm-6.editBtns.text-right
+//-         div.btn-group
+//-             div.btn.btn-danger(data-blog_delete=`${blog.blog_id}` title="Delete Blog")
+//-                 i.fa.fa-trash-o
+//-             div.btn.btn-success(data-blog_edit=`${blog.blog_id}` title="Edit Blog")
+//-                 i.fa.fa-pencil
+

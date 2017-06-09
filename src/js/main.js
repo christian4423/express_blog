@@ -1,8 +1,6 @@
 ﻿window.onload = (function () {
-    if(window.tinymce){
-tinymce.init({ selector:'textarea' });  
-    }
-    
+
+
     console.info("Js onload function invoked");
     if (window.io) {
 
@@ -14,6 +12,24 @@ tinymce.init({ selector:'textarea' });
 
         socket.on('new_blog', function (data) {
             $(".blog_container").prepend(data)
+        });
+        socket.on('blog_pop', function (data) {
+            let $s = $(`[data-shoveit_badge=${data.blog_id}]`);
+            let $d = $(`[data-digit_badge=${data.blog_id}]`);
+            $s.text(data.negative);
+            if (data.negative === 0) {
+                $s.removeClass("badge--red");
+            } else {
+                $s.addClass("badge--red");
+            }
+            $d.text(data.positive)
+            if (data.positive === 0) {
+                $d.removeClass("badge--green");
+            } else {
+                $d.addClass("badge--green");
+            }
+            $(`[data-digit=${data.blog_id}]`).off();
+            $(`[data-shoveit=${data.blog_id}]`).off();
         });
     }
     $("[data-users=signup]").off();
@@ -34,6 +50,23 @@ tinymce.init({ selector:'textarea' });
         const password = $("[data-users=password]").val().trim();
         logIn(email, password);
         return false;
+    });
+
+    $("[data-shoveit]").off();
+    $("[data-shoveit]").on("click", function (e) {
+        let blog_id = $(this).data().shoveit;
+        return updateBlogPopularity(blog_id, false);
+    });
+    $("[data-digit]").off();
+    $("[data-digit]").on("click", function (e) {
+        let blog_id = $(this).data().digit;
+        return updateBlogPopularity(blog_id, true);
+    });
+
+    $("[data-blog_comment]").off();
+    $("[data-blog_comment]").on("click", function (e) {
+        let blog_id = $(this).data().blog_comment;
+        return getblogComments(blog_id);
     });
 
     $("[data-action=toggle_blog_form]").off();
@@ -75,6 +108,7 @@ tinymce.init({ selector:'textarea' });
         })
     });
 
+
     $("[data-blog_edit]").off();
     $("[data-blog_edit]").on("click", function () {
         let $this = $(this);
@@ -107,6 +141,58 @@ tinymce.init({ selector:'textarea' });
         })
     });
 })();
+
+function getblogComments(blog_id) {
+    $.ajax({
+        url: "/blog/comments",
+        type: "GET",
+        data: { blog_id: blog_id },
+        success: function (data) {
+            let $comment_area = $(`[data-place_comments=${blog_id}]`);
+            $comment_area.html(data);
+            let $text_area = $comment_area.find("textarea");
+            setTimeout(function () {
+                if ($comment_area.css("display") === "none") {
+                    $comment_area.slideDown(200, function () {
+                        $text_area.focus();
+                    });
+                }
+                else{
+                   $text_area.focus(); 
+                }
+            }, 100)
+            let $form = $comment_area.find("form");
+
+
+            let $btn = $form.find("[data-post_comment]");
+            $btn.on("click", function () {
+                let data = $form.serialize();
+                $form.parent().parent().slideUp();
+                $(this).off();
+                postComment(data, $comment_area, blog_id);
+            })
+        }
+    });
+}
+
+function postComment(data, comment_area, blog_id) {
+    $.ajax({
+        url: "/blog/comment",
+        type: "POST",
+        data: data,
+        success: function (data) {
+            console.log(data);
+        }
+    });
+}
+function updateBlogPopularity(blog_id, digShoveBool) {
+    $.ajax({
+        url: "/blog/popularity",
+        type: "POST",
+        data: { blog_id: blog_id, upvote: digShoveBool }
+    });
+};
+
 
 function invokeBlogEdit_btn($e) {
     let edit_promise = new Promise((resolve, reject) => {

@@ -1,0 +1,38 @@
+div.row
+    div.col-xs-12(data-place_new_comments=blog_id)
+        if comments.length > 0
+            each comment in comments
+                div.row
+                    div.col-xs-3.col-sm-2.mobile-hide
+                        img.profile_picture.profile_picture--comment-view(src=comment.user.profile_pic)
+                    div.col-xs-9.col-sm-8
+                        div.__comment_content
+                            div.__username
+                                a(href=`/profile/view/${comment.user.userid}`)=`${comment.user.firstname} ${comment.user.lastname}`
+                            div.__comment=comment.comment.comment
+                        if comment.user.userid == User.userid
+                            div.row
+                                div.col-xs-4.col-sm-3.__edit_bts
+                                    a(href="#" data-comment_edit=comment.comment.comment_id)
+                                        small="Edit"
+                                    span!="&nbsp;"
+                                    a(href="#" data-comment_delete=comment.comment.comment_id)
+                                        small="Delete"
+                                div.col-xs-5.col-sm-9.text-right
+                                    small.__date= comment.comment.updatedAt
+                        
+
+div.row
+    div.col-xs-3.col-sm-2.mobile-hide
+        img.profile_picture.profile_picture--comment(src=User.profile_pic)
+    div.col-xs-12.col-sm-8
+        div.row
+            div.col-xs-12
+                form.form-horizontal
+                    input(type="hidden" name="user_id" value=User.userid)
+                    input(type="hidden" name="blog_id" value=blog_id)
+                    div.form-group
+                        label(for="comment")
+                        textarea.form-control(name="comment" placeholder="Say Something...")
+                    div.form-group.text-right
+                        div.btn.btn-success(data-post_comment=blog_id)="Send"

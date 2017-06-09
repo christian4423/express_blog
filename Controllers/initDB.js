@@ -163,5 +163,5 @@ function end(req, res) {
 }
 
 
-router.get('/', initDB, delete_roles, delete_users, delete_user_roles, delete_blogs, add_roles, create_hash, create_super_user, link_su_to_role, display, end);
+router.get('/', initDB, delete_roles, delete_users, delete_user_roles, add_roles, create_hash, create_super_user, link_su_to_role, display, end);
 module.exports = router;

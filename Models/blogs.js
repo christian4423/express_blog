@@ -51,6 +51,8 @@ module.exports = function (sequelize, DataTypes) {
             classMethods: {
                 associate: function (models) {
                     Blog.belongsTo(models.User, { foreignKey: 'user_id', as: "User", onDelete: "SET NULL", onUpdate: "CASCADE", hooks: true })
+                    Blog.hasOne(models.BlogPopularity, { foreignKey: 'blog_id', as: "Popularity", onDelete: "SET NULL", onUpdate: "CASCADE", hooks: true })
+                    Blog.hasMany(models.BlogComments, { foreignKey: 'blog_id', as: "Comments", onDelete: "SET NULL", onUpdate: "CASCADE", hooks: true })
                 }
             },
         });

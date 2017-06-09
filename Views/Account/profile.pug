@@ -31,7 +31,8 @@ block body_content
         each blog in ViewBag.blogs
             div.row.blog_post(data-blog=`${blog.blog_id}`)
                 div.col-xs-10.col-sm-6                                        
-                    h4(title="Subject")= blog.subject                    
+                    a(href=`/blog/view/${blog.blog_id}`)
+                        h4(title="Subject")= blog.subject                    
                     p(title="Body")!= blog.body
                     p(title="Tags")
                         div.blog-tag.blog-tag--icon(title="tags")

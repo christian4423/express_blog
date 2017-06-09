@@ -3,6 +3,8 @@ var router = express.Router();
 var models = require('../Models');
 const env = process.env.ENV;
 var BlogModel = models.blogs;
+var BlogPopModel = models.BlogPopularity;
+var BlogComModel = models.BlogComments;
 var UserRole = models.UserRole;
 var UserModel = models.User;
 
@@ -63,6 +65,54 @@ function postBlog(req, res, next) {
             })
     });
 }
+function addCommentToBlog(req, res, next) {
+    if (req.body.comment == "" || req.body.comment == null) {
+        res.send({ Error: "Comment are required." });
+    }
+    BlogComModel.sync().then(function () {
+        let d = req.body;
+        let modelObj = {
+            comment: d.comment,
+            user_id: d.user_id,
+            blog_id: d.blog_id
+        }
+        BlogComModel.create(modelObj)
+            .then(function (responce) {
+                req["newComment"] = responce.dataValues;
+                res.send(responce);
+            })
+            .catch(function (error) {
+                const err = {
+                    error: true,
+                    message: "Could Not Add Comment",
+                    error
+                }
+                res.status(500).send(err);
+            })
+    });
+}
+function createPopulatrityTable(req, res, next) {
+    let nb = req["newBlog"];
+    BlogPopModel.sync().then(function () {
+
+        BlogPopModel.create({
+            blog_id: nb.blog_id,
+            positive: 0,
+            negative: 0,
+        })
+            .then(function (responce) {
+                next();
+            })
+            .catch(function (error) {
+                const err = {
+                    error: true,
+                    message: "Could not create popularity table",
+                    error
+                }
+                res.status(500).send(err);
+            })
+    });
+}
 function getLatestBlog(req, res, next) {
     let nb = req["newBlog"];
     var io = req.app.get('socketio');
@@ -86,6 +136,8 @@ function getLatestBlog(req, res, next) {
             }
             req.ViewBag["blogs"].push(blog_obj);
         }
+
+
 
         res.render("Blog/blogSinglePartial", req.ViewBag["blogs"][0],
             function (err, html) {
@@ -173,20 +225,84 @@ function returnNewBlogView(req, res, next) {
     res.render("Blog/blogPartial", { blog: req.ViewBag.blogs[0] });
 }
 
+
+function updateBlogPopularity(req, res, next) {
+    let blog_id = req.body.blog_id;
+    let upvote = req.body.upvote;
+    let inc_string = "negative";
+    if (upvote == "true") {
+        inc_string = "positive";
+    }
+
+    BlogPopModel.sync().then(function () {
+
+        BlogPopModel.build({ blog_id: blog_id }, { isNewRecord: false }).increment(inc_string)
+            .then(function (blog_pop) {
+                let io = req.app.get('socketio');
+                io.sockets.emit("blog_pop", blog_pop.dataValues);
+                res.end();
+
+            })
+            .catch(function (error) {
+                const err = {
+                    error: true,
+                    message: "Could not create popularity table",
+                    error
+                }
+                res.status(500).send(err);
+            })
+    });
+}
+
+
 router.use(syncUsers, BlogModelSync)
 
-router.post('/postBlog', postBlog, BlogModelSync, getLatestBlog);
-router.post('/edit/', updateBlog, BlogModelSync, GetBlog, findUsers, blogTagsToArr, dateToStamp, returnNewBlogView);
+router.post('/postBlog', postBlog, BlogModelSync, createPopulatrityTable, getLatestBlog);
+router.post('/edit/', updateBlog, BlogModelSync, GetBlog, findUsers, blogTagsToArrDepricated, dateToStampDeprecated, returnNewBlogView);
 router.post('/delete/', deleteBlog);
+//router.post('/popularity/', updateBlogPopularity, getNewPopularityValues, returnNewValues);
+router.post('/popularity/', updateBlogPopularity);
+router.post('/comment/', addCommentToBlog);
 
 // router.post('/postBlog', postBlog, goHome);
-router.get('/view/:id', setEnvVarsBlogGet, GetBlog, findUsers, blogTagsToArr, dateToStamp, renderGet);
-router.get('/edit/:id', setEnvVarsBlogGet, GetBlog, findUsers, blogTagsToArr, renderGetEdit);
-router.get('/myBlogs', setEnvVarsBlogGet, GetMyBlogs, findUsers, blogTagsToArr, dateToStamp, renderGet);
+router.get('/view/:id', setEnvVarsBlogGet, GetBlogCurrent,blogTagsToArrCurrent, dateToStampCurrent, renderGet);
+router.get('/edit/:id', setEnvVarsBlogGet, GetBlog, findUsers, blogTagsToArrDepricated, renderGetEdit);
+router.get('/myBlogs', setEnvVarsBlogGet, GetMyBlogs, blogTagsToArrCurrent, dateToStampCurrent, renderGet);
+router.get('/comments', GetComments);
 
 
 
-
+function GetComments(req, res, next) {
+    let blog_id = req.params.blog_id || req.body.blog_id || req.query.blog_id;
+    const BCM_ALL = BlogComModel.findAll({
+        where: { blog_id }, order: '"updatedAt" DESC',include: [{
+            model: models.User,
+            as: "User"
+        }]
+    });
+    BCM_ALL.then((comments) => {
+        if (comments == null) {
+            res.send({ status: 404, message: "No Comments" })
+        } else {
+            var arr = [];
+            for (let comment of comments) {
+                let updated_at = comment.dataValues.updatedAt;
+                comment.dataValues.updatedAt = updated_at.toLocaleDateString();
+                let obj = {
+                    user: comment.User.dataValues,
+                    comment: comment.dataValues
+                }
+                arr.push(obj);
+            }
+            req.ViewBag["comments"] = arr;
+            req.ViewBag["blog_id"] = blog_id
+            res.render("shared/blogs/_comments", req.ViewBag)
+        }
+    });
+    BCM_ALL.catch((error) => {
+        res.send(error)
+    });
+}
 
 
 function setEnvVarsBlogGet(req, res, next) {
@@ -215,15 +331,58 @@ function GetBlog(req, res, next) {
     });
     BMFONE.catch((error) => { res.send(error) });
 }
+function GetBlogCurrent(req, res, next) {
+    let blog_id = req.params.id || req.blog_id;
+    const BMFONE = BlogModel.findOne({
+        order: '"updatedAt" DESC',
+        include: [{
+            model: models.User,
+            as: "User"
+        }, {
+            model: models.BlogPopularity,
+            as: "Popularity"
+        }]
+    });
+    BMFONE.then((blog) => {
+        if (blog == null) {
+            res.send({ status: 404, message: "Could not find blog." })
+        } else {
+            req.ViewBag["blogs"] = [];
+            blog = blog.dataValues
+            let blog_obj = {
+                blog: blog,
+                user: blog.User.dataValues,
+                rep: blog.Popularity.dataValues
+            }
+            req.ViewBag["blogs"].push(blog_obj);
+            next();
+        }
+    });
+    BMFONE.catch((error) => { res.send(error) });
+}
 function GetMyBlogs(req, res, next) {
-    const BMFONE = BlogModel.findAll({ where: { user_id: parseInt(req.decoded.User.userid) }, order: '"updatedAt" DESC' });
+    const BMFONE = BlogModel.findAll({
+        order: '"updatedAt" DESC',
+        include: [{
+            model: models.User,
+            as: "User"
+        }, {
+            model: models.BlogPopularity,
+            as: "Popularity"
+        }]
+    });
     BMFONE.then((blogs) => {
         if (blogs == null) {
             res.send({ status: 404, message: "Could not find blog." })
         } else {
             req.ViewBag["blogs"] = [];
             for (let blog of blogs) {
-                req.ViewBag["blogs"].push(blog.dataValues);
+                let blog_obj = {
+                    blog: blog.dataValues,
+                    user: blog.User.dataValues,
+                    rep: blog.Popularity.dataValues
+                }
+                req.ViewBag["blogs"].push(blog_obj);
             }
             next();
         }
@@ -260,7 +419,7 @@ function findUsers(req, res, next) {
         UserModelFind.catch((error) => { console.log(error) });
     }
 }
-function blogTagsToArr(req, res, next) {
+function blogTagsToArrDepricated(req, res, next) {
     const blogs = req.ViewBag.blogs;
     if (blogs.length <= 0) {
         next();
@@ -274,7 +433,36 @@ function blogTagsToArr(req, res, next) {
     }
     next();
 }
-function dateToStamp(req, res, next) {
+
+function blogTagsToArrCurrent(req, res, next) {
+    const blogs = req.ViewBag.blogs;
+    if (blogs.length === 0) {
+        next();
+    }
+    let index = 0;
+    for (let blog of blogs) {
+        let tags = blog.blog.tags;
+        var tag_arr = tags.split(" ");
+        req.ViewBag.blogs[index].blog["tags"] = tag_arr;
+        index++;
+    }
+    next();
+}
+function dateToStampCurrent(req, res, next) {
+    const blogs = req.ViewBag.blogs;
+    if (blogs.length === 0) {
+        next();
+    }
+    let index = 0;
+    for (let blog of blogs) {
+        let date = blog.blog.user_updated;
+        let time_ago = timeSince(date);
+        req.ViewBag.blogs[index].blog["time_ago"] = time_ago;
+        index++;
+    }
+    next();
+}
+function dateToStampDeprecated(req, res, next) {
     const blogs = req.ViewBag.blogs;
     if (blogs.length <= 0) {
         next();

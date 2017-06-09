@@ -46,6 +46,21 @@ html {
         height: 64px;
         border: 3px solid #f0f0f0;
     }
+    &--comment{
+        display: inline-block;
+        width: 44px;
+        height: 44px;
+        border: 1px solid #f0f0f0;
+        position: relative;
+        top:15px;
+    }
+    &--comment-view{
+        display: inline-block;
+        width: 33px;
+        height: 33px;
+        border: 1px solid #f0f0f0;
+          box-shadow: 0 0 3px #333 !important;
+    }
 }
 
 .tag_input_edit{
@@ -133,7 +148,33 @@ nav{
             color: red;
         }
     }
-
+    .__popularity-container{
+        .badge{
+            &--green{background-color: green;}
+            &--red{background-color: red;}
+        }
+    }
+    .__comments-container{
+        margin-top: 20px;
+        .form-group{
+            margin-left:0;
+            margin-right:0;
+        }
+        .__comment_content{
+            margin-top: 10px;
+            .__username{
+                 font-weight: 200;     
+                 font-size:1.25rem;      
+            }
+        }
+        .__date{
+            color: darkgray;
+            font-size: 1rem;
+        }
+        .__edit_btns{
+            font-size: 1rem;
+        }
+    }
 }
 
 .headingIntro{
@@ -148,3 +189,4 @@ nav{
         display: none;
     }
 }
+
